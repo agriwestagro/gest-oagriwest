@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import Link from "next/link";
 
-export default function NovaSafra() {
+export default function NovaSafra(){
 
   const [propriedades,setPropriedades] = useState<string[]>([])
 
@@ -41,8 +41,8 @@ export default function NovaSafra() {
 
   async function salvarSafra(){
 
-    if(!form.propriedade || !form.safra){
-      alert("Preencha os campos obrigatórios")
+    if(!form.propriedade){
+      alert("Selecione a propriedade")
       return
     }
 
@@ -84,18 +84,13 @@ export default function NovaSafra() {
   return(
 
     <div style={{
-      padding:"40px 20px",
+      padding:"40px 50px",
       background:"#f3f4f6",
-      minHeight:"100vh",
-      display:"flex",
-      flexDirection:"column",
-      alignItems:"center"
+      minHeight:"100vh"
     }}>
 
       {/* HEADER */}
       <div style={{
-        width:"100%",
-        maxWidth:500,
         display:"flex",
         justifyContent:"space-between",
         alignItems:"center",
@@ -115,7 +110,7 @@ export default function NovaSafra() {
             fontWeight:600,
             color:"#1f2937"
           }}>
-            Nova Safra
+            Safras
           </h1>
         </div>
 
@@ -130,7 +125,7 @@ export default function NovaSafra() {
       {/* FORM */}
       <div style={card}>
 
-        <h3 style={{marginBottom:15}}>Cadastro</h3>
+        <h3 style={{marginBottom:15}}>Nova Safra</h3>
 
         <select
           name="propriedade"
@@ -164,15 +159,14 @@ export default function NovaSafra() {
   )
 }
 
-/* 🎨 ESTILO */
+/* 🎨 ESTILO (IDÊNTICO AO ANALISES) */
 
 const card = {
   background:"#fff",
   padding:20,
   borderRadius:12,
   boxShadow:"0 2px 6px rgba(0,0,0,0.05)",
-  width:"100%",
-  maxWidth:500
+  marginBottom:20
 }
 
 const inputFull = {
@@ -190,8 +184,7 @@ const btn = {
   border:"none",
   borderRadius:10,
   cursor:"pointer",
-  fontWeight:500,
-  width:"100%"
+  fontWeight:500
 }
 
 const btnVoltar = {
