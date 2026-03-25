@@ -13,11 +13,8 @@ export default function NovaSafra() {
     safra:"",
     cultura:"",
     area:"",
-    produtividade_ha:"",
     produtividade_alq:"",
-    custo_ha:"",
     custo_total:"",
-    preco_venda:"",
     preco_medio:"",
     receita:"",
     margem:""
@@ -56,11 +53,8 @@ export default function NovaSafra() {
         safra: form.safra,
         cultura: form.cultura,
         area: form.area,
-        produtividade: Number(form.produtividade_ha),
         produtividade_alqueire: Number(form.produtividade_alq),
-        custo_ha: Number(form.custo_ha),
         custo_total: Number(form.custo_total),
-        preco_venda: Number(form.preco_venda),
         preco_medio: Number(form.preco_medio),
         receita: Number(form.receita),
         margem: Number(form.margem)
@@ -79,11 +73,8 @@ export default function NovaSafra() {
       safra:"",
       cultura:"",
       area:"",
-      produtividade_ha:"",
       produtividade_alq:"",
-      custo_ha:"",
       custo_total:"",
-      preco_venda:"",
       preco_medio:"",
       receita:"",
       margem:""
@@ -93,13 +84,18 @@ export default function NovaSafra() {
   return(
 
     <div style={{
-      padding:"40px 50px",
+      padding:"40px 20px",
       background:"#f3f4f6",
-      minHeight:"100vh"
+      minHeight:"100vh",
+      display:"flex",
+      flexDirection:"column",
+      alignItems:"center"
     }}>
 
       {/* HEADER */}
       <div style={{
+        width:"100%",
+        maxWidth:500,
         display:"flex",
         justifyContent:"space-between",
         alignItems:"center",
@@ -136,7 +132,6 @@ export default function NovaSafra() {
 
         <h3 style={{marginBottom:15}}>Cadastro</h3>
 
-        {/* PROPRIEDADE */}
         <select
           name="propriedade"
           value={form.propriedade}
@@ -153,15 +148,9 @@ export default function NovaSafra() {
         <input name="cultura" placeholder="Cultura" value={form.cultura} onChange={handleChange} style={inputFull}/>
         <input name="area" placeholder="Área (ha)" value={form.area} onChange={handleChange} style={inputFull}/>
 
-        <input name="produtividade_ha" placeholder="Produtividade (sc/ha)" value={form.produtividade_ha} onChange={handleChange} style={inputFull}/>
         <input name="produtividade_alq" placeholder="Produtividade (sc/alq)" value={form.produtividade_alq} onChange={handleChange} style={inputFull}/>
-
-        <input name="custo_ha" placeholder="Custo por ha (R$)" value={form.custo_ha} onChange={handleChange} style={inputFull}/>
         <input name="custo_total" placeholder="Custo total (R$)" value={form.custo_total} onChange={handleChange} style={inputFull}/>
-
-        <input name="preco_venda" placeholder="Preço de venda (R$/sc)" value={form.preco_venda} onChange={handleChange} style={inputFull}/>
         <input name="preco_medio" placeholder="Preço médio (R$/sc)" value={form.preco_medio} onChange={handleChange} style={inputFull}/>
-
         <input name="receita" placeholder="Receita total (R$)" value={form.receita} onChange={handleChange} style={inputFull}/>
         <input name="margem" placeholder="Margem (%)" value={form.margem} onChange={handleChange} style={inputFull}/>
 
@@ -182,7 +171,7 @@ const card = {
   padding:20,
   borderRadius:12,
   boxShadow:"0 2px 6px rgba(0,0,0,0.05)",
-  marginBottom:20,
+  width:"100%",
   maxWidth:500
 }
 
@@ -201,7 +190,8 @@ const btn = {
   border:"none",
   borderRadius:10,
   cursor:"pointer",
-  fontWeight:500
+  fontWeight:500,
+  width:"100%"
 }
 
 const btnVoltar = {
