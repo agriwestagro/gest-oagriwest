@@ -48,7 +48,6 @@ export default function NovaVisitaPage() {
   async function salvar(e: any) {
     e.preventDefault()
 
-    // DEBUG
     console.log("FORM:", form)
 
     if (!form.propriedade || !form.data_visita) {
@@ -58,12 +57,15 @@ export default function NovaVisitaPage() {
 
     setLoading(true)
 
+    // ✅ CORREÇÃO: salvar com data + hora sem erro de fuso
+    const dataCorrigida = new Date(form.data_visita).toISOString()
+
     const { data, error } = await supabase
       .from("visitas")
       .insert([
         {
           propriedade: form.propriedade,
-          data_visita: form.data_visita,
+          data_visita: dataCorrigida,
           motivo: form.motivo,
           mensagem_produtor: form.mensagem_produtor,
           observacao: form.observacao,
@@ -118,11 +120,11 @@ export default function NovaVisitaPage() {
             </select>
           </div>
 
-          {/* DATA */}
+          {/* DATA + HORA */}
           <div>
-            <label className="text-sm text-gray-600">Data da visita *</label>
+            <label className="text-sm text-gray-600">Data e hora da visita *</label>
             <input
-              type="date"
+              type="datetime-local"
               name="data_visita"
               value={form.data_visita}
               onChange={handleChange}
