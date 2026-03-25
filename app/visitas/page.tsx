@@ -34,12 +34,17 @@ export default function VisitasPage(){
     setPropriedades(data?.map(p=>p.nome) || [])
   }
 
+  // ✅ CORREÇÃO AQUI
   function formatarData(dataString:any){
     if(!dataString) return "-"
 
     const data = new Date(dataString)
 
-    return data.toLocaleString("pt-BR",{
+    const dataCorrigida = new Date(
+      data.getTime() + data.getTimezoneOffset() * 60000
+    )
+
+    return dataCorrigida.toLocaleString("pt-BR",{
       day:"2-digit",
       month:"2-digit",
       year:"numeric",
