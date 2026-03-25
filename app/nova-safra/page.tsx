@@ -1,10 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import Link from "next/link";
 
 export default function NovaSafra() {
+
+  const [propriedades,setPropriedades] = useState<string[]>([])
 
   const [form,setForm] = useState({
     propriedade:"",
@@ -15,6 +17,18 @@ export default function NovaSafra() {
     custo:"",
     preco:""
   })
+
+  useEffect(()=>{
+    carregarPropriedades()
+  },[])
+
+  async function carregarPropriedades(){
+    const { data } = await supabase
+      .from("propriedades")
+      .select("nome")
+
+    setPropriedades(data?.map(p=>p.nome) || [])
+  }
 
   function handleChange(e:any){
     setForm({
@@ -40,8 +54,8 @@ export default function NovaSafra() {
 
   async function salvarSafra(){
 
-    if(!form.propriedade || !form.safra){
-      alert("Preencha os campos obrigatórios")
+    if(!form.propriedade){
+      alert("Selecione a propriedade")
       return
     }
 
@@ -124,13 +138,18 @@ export default function NovaSafra() {
 
         <h3 style={{marginBottom:15}}>Cadastro</h3>
 
-        <input
+        {/* SELECT PROPRIEDADE */}
+        <select
           name="propriedade"
-          placeholder="Propriedade"
           value={form.propriedade}
           onChange={handleChange}
           style={inputFull}
-        />
+        >
+          <option value="">Selecione a propriedade</option>
+          {propriedades.map((p,i)=>(
+            <option key={i} value={p}>{p}</option>
+          ))}
+        </select>
 
         <input
           name="safra"
@@ -180,7 +199,7 @@ export default function NovaSafra() {
           style={inputFull}
         />
 
-        {/* RESUMO AUTOMÁTICO */}
+        {/* RESUMO */}
         <div style={resumoBox}>
           <p><b>Receita estimada:</b> {formatarMoeda(receita)}</p>
           <p style={{
@@ -201,7 +220,7 @@ export default function NovaSafra() {
   )
 }
 
-/* 🎨 ESTILO PADRÃO */
+/* 🎨 ESTILO */
 
 const card = {
   background:"#fff",
