@@ -1,113 +1,160 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
+import Link from "next/link";
 
-export default function NovaSafra() {
+export default function SafrasPage(){
 
-  const [propriedade,setPropriedade] = useState("")
-  const [safra,setSafra] = useState("")
-  const [cultura,setCultura] = useState("")
-  const [area,setArea] = useState("")
-  const [produtividade,setProdutividade] = useState("")
-  const [custo,setCusto] = useState("")
-  const [preco,setPreco] = useState("")
+  const [safras,setSafras] = useState<any[]>([])
 
-  async function salvarSafra(){
+  useEffect(()=>{
+    carregarSafras()
+  },[])
 
-    const prod = Number(produtividade)
-    const p = Number(preco)
-    const c = Number(custo)
-
-    const receita = prod * p
-    const lucro = receita - c
-
-    const { error } = await supabase
+  async function carregarSafras(){
+    const { data } = await supabase
       .from("safras")
-      .insert([{
-        propriedade: propriedade,
-        safra: safra,
-        cultura: cultura,
-        area: area,
-        produtividade: prod,
-        custo_ha: c,
-        preco_venda: p,
-        receita: receita,
-        lucro: lucro
-      }])
+      .select("*")
+      .order("created_at",{ascending:false})
 
-    if(error){
-      alert("erro ao salvar safra")
-      console.log(error)
-    }else{
-      alert("safra salva")
-    }
+    setSafras(data || [])
+  }
 
+  function formatarMoeda(valor:any){
+    if(valor === null || valor === undefined) return "-"
+    return valor.toLocaleString("pt-BR",{
+      style:"currency",
+      currency:"BRL"
+    })
+  }
+
+  function formatarNumero(valor:any){
+    if(valor === null || valor === undefined) return "-"
+    return valor.toLocaleString("pt-BR")
   }
 
   return(
 
-    <div style={{padding:40}}>
+    <div style={{
+      padding:"40px 50px",
+      background:"#f3f4f6",
+      minHeight:"100vh"
+    }}>
 
-      <h1>Registrar Safra</h1>
+      {/* HEADER */}
+      <div style={{
+        display:"flex",
+        justifyContent:"space-between",
+        alignItems:"center",
+        marginBottom:25
+      }}>
 
-      <br/>
+        <div style={{
+          display:"flex",
+          alignItems:"center",
+          gap:10
+        }}>
+          <div style={{fontSize:22}}>🌱</div>
 
-      <input placeholder="Propriedade"
-      value={propriedade}
-      onChange={(e)=>setPropriedade(e.target.value)}
-      />
+          <h1 style={{
+            margin:0,
+            fontSize:24,
+            fontWeight:600,
+            color:"#1f2937"
+          }}>
+            Safras
+          </h1>
+        </div>
 
-      <br/><br/>
+        <Link href="/dashboard">
+          <button style={btnVoltar}>
+            ← Dashboard
+          </button>
+        </Link>
 
-      <input placeholder="Safra (ex: 2024/25)"
-      value={safra}
-      onChange={(e)=>setSafra(e.target.value)}
-      />
+      </div>
 
-      <br/><br/>
+      {/* LISTA */}
+      <div style={{
+        display:"grid",
+        gridTemplateColumns:"repeat(auto-fill, minmax(320px, 1fr))",
+        gap:20
+      }}>
 
-      <input placeholder="Cultura"
-      value={cultura}
-      onChange={(e)=>setCultura(e.target.value)}
-      />
+        {safras.map((s,index)=>{
 
-      <br/><br/>
+          const lucroPositivo = s.lucro >= 0
 
-      <input placeholder="Área (ha)"
-      value={area}
-      onChange={(e)=>setArea(e.target.value)}
-      />
+          return(
 
-      <br/><br/>
+            <div key={index} style={cardElegante}>
 
-      <input placeholder="Produtividade sc/ha"
-      value={produtividade}
-      onChange={(e)=>setProdutividade(e.target.value)}
-      />
+              <div style={{marginBottom:10}}>
+                <strong style={{fontSize:16}}>
+                  {s.propriedade}
+                </strong>
+              </div>
 
-      <br/><br/>
+              <div style={linha}><b>Safra:</b> {s.safra}</div>
+              <div style={linha}><b>Cultura:</b> {s.cultura}</div>
+              <div style={linha}><b>Área:</b> {formatarNumero(s.area)} ha</div>
 
-      <input placeholder="Custo por ha"
-      value={custo}
-      onChange={(e)=>setCusto(e.target.value)}
-      />
+              <div style={linha}>
+                <b>Produtividade:</b> {formatarNumero(s.produtividade)} sc/ha
+              </div>
 
-      <br/><br/>
+              <div style={linha}>
+                <b>Custo:</b> {formatarMoeda(s.custo_ha)}
+              </div>
 
-      <input placeholder="Preço venda"
-      value={preco}
-      onChange={(e)=>setPreco(e.target.value)}
-      />
+              <div style={linha}>
+                <b>Preço:</b> {formatarMoeda(s.preco_venda)}
+              </div>
 
-      <br/><br/>
+              <div style={linha}>
+                <b>Receita:</b> {formatarMoeda(s.receita)}
+              </div>
 
-      <button onClick={salvarSafra}>
-        Salvar Safra
-      </button>
+              <div style={{
+                ...linha,
+                marginTop:8,
+                fontWeight:600,
+                color: lucroPositivo ? "#16a34a" : "#dc2626"
+              }}>
+                <b>Lucro:</b> {formatarMoeda(s.lucro)}
+              </div>
+
+            </div>
+
+          )
+        })}
+
+      </div>
 
     </div>
-
   )
+}
 
+/* 🎨 ESTILO (igual página de análises) */
+
+const cardElegante = {
+  background:"#fff",
+  padding:20,
+  borderRadius:14,
+  border:"1px solid #e5e7eb"
+}
+
+const btnVoltar = {
+  padding:"8px 14px",
+  background:"#e5e7eb",
+  border:"none",
+  borderRadius:10,
+  cursor:"pointer"
+}
+
+const linha = {
+  fontSize:14,
+  marginBottom:5,
+  color:"#374151"
 }
