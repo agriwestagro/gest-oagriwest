@@ -1,37 +1,81 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { supabase } from "@/lib/supabase";
 import Link from "next/link";
 
-export default function SafrasPage(){
+export default function NovaSafra() {
 
-  const [safras,setSafras] = useState<any[]>([])
+  const [form,setForm] = useState({
+    propriedade:"",
+    safra:"",
+    cultura:"",
+    area:"",
+    produtividade:"",
+    custo:"",
+    preco:""
+  })
 
-  useEffect(()=>{
-    carregarSafras()
-  },[])
-
-  async function carregarSafras(){
-    const { data } = await supabase
-      .from("safras")
-      .select("*")
-      .order("created_at",{ascending:false})
-
-    setSafras(data || [])
+  function handleChange(e:any){
+    setForm({
+      ...form,
+      [e.target.name]: e.target.value
+    })
   }
 
-  function formatarMoeda(valor:any){
-    if(valor === null || valor === undefined) return "-"
+  const prod = Number(form.produtividade)
+  const preco = Number(form.preco)
+  const custo = Number(form.custo)
+
+  const receita = prod * preco
+  const lucro = receita - custo
+
+  function formatarMoeda(valor:number){
+    if(!valor) return "R$ 0,00"
     return valor.toLocaleString("pt-BR",{
       style:"currency",
       currency:"BRL"
     })
   }
 
-  function formatarNumero(valor:any){
-    if(valor === null || valor === undefined) return "-"
-    return valor.toLocaleString("pt-BR")
+  async function salvarSafra(){
+
+    if(!form.propriedade || !form.safra){
+      alert("Preencha os campos obrigatórios")
+      return
+    }
+
+    const { error } = await supabase
+      .from("safras")
+      .insert([{
+        propriedade: form.propriedade,
+        safra: form.safra,
+        cultura: form.cultura,
+        area: form.area,
+        produtividade: prod,
+        custo_ha: custo,
+        preco_venda: preco,
+        receita: receita,
+        lucro: lucro
+      }])
+
+    if(error){
+      alert("Erro ao salvar safra")
+      console.log(error)
+      return
+    }
+
+    alert("Safra salva com sucesso")
+
+    setForm({
+      propriedade:"",
+      safra:"",
+      cultura:"",
+      area:"",
+      produtividade:"",
+      custo:"",
+      preco:""
+    })
   }
 
   return(
@@ -63,7 +107,7 @@ export default function SafrasPage(){
             fontWeight:600,
             color:"#1f2937"
           }}>
-            Safras
+            Nova Safra
           </h1>
         </div>
 
@@ -75,60 +119,81 @@ export default function SafrasPage(){
 
       </div>
 
-      {/* LISTA */}
-      <div style={{
-        display:"grid",
-        gridTemplateColumns:"repeat(auto-fill, minmax(320px, 1fr))",
-        gap:20
-      }}>
+      {/* FORM */}
+      <div style={card}>
 
-        {safras.map((s,index)=>{
+        <h3 style={{marginBottom:15}}>Cadastro</h3>
 
-          const lucroPositivo = s.lucro >= 0
+        <input
+          name="propriedade"
+          placeholder="Propriedade"
+          value={form.propriedade}
+          onChange={handleChange}
+          style={inputFull}
+        />
 
-          return(
+        <input
+          name="safra"
+          placeholder="Safra (ex: 2024/25)"
+          value={form.safra}
+          onChange={handleChange}
+          style={inputFull}
+        />
 
-            <div key={index} style={cardElegante}>
+        <input
+          name="cultura"
+          placeholder="Cultura"
+          value={form.cultura}
+          onChange={handleChange}
+          style={inputFull}
+        />
 
-              <div style={{marginBottom:10}}>
-                <strong style={{fontSize:16}}>
-                  {s.propriedade}
-                </strong>
-              </div>
+        <input
+          name="area"
+          placeholder="Área (ha)"
+          value={form.area}
+          onChange={handleChange}
+          style={inputFull}
+        />
 
-              <div style={linha}><b>Safra:</b> {s.safra}</div>
-              <div style={linha}><b>Cultura:</b> {s.cultura}</div>
-              <div style={linha}><b>Área:</b> {formatarNumero(s.area)} ha</div>
+        <input
+          name="produtividade"
+          placeholder="Produtividade (sc/ha)"
+          value={form.produtividade}
+          onChange={handleChange}
+          style={inputFull}
+        />
 
-              <div style={linha}>
-                <b>Produtividade:</b> {formatarNumero(s.produtividade)} sc/ha
-              </div>
+        <input
+          name="custo"
+          placeholder="Custo por ha (R$)"
+          value={form.custo}
+          onChange={handleChange}
+          style={inputFull}
+        />
 
-              <div style={linha}>
-                <b>Custo:</b> {formatarMoeda(s.custo_ha)}
-              </div>
+        <input
+          name="preco"
+          placeholder="Preço de venda (R$)"
+          value={form.preco}
+          onChange={handleChange}
+          style={inputFull}
+        />
 
-              <div style={linha}>
-                <b>Preço:</b> {formatarMoeda(s.preco_venda)}
-              </div>
+        {/* RESUMO AUTOMÁTICO */}
+        <div style={resumoBox}>
+          <p><b>Receita estimada:</b> {formatarMoeda(receita)}</p>
+          <p style={{
+            color: lucro >= 0 ? "#16a34a" : "#dc2626",
+            fontWeight:600
+          }}>
+            <b>Lucro estimado:</b> {formatarMoeda(lucro)}
+          </p>
+        </div>
 
-              <div style={linha}>
-                <b>Receita:</b> {formatarMoeda(s.receita)}
-              </div>
-
-              <div style={{
-                ...linha,
-                marginTop:8,
-                fontWeight:600,
-                color: lucroPositivo ? "#16a34a" : "#dc2626"
-              }}>
-                <b>Lucro:</b> {formatarMoeda(s.lucro)}
-              </div>
-
-            </div>
-
-          )
-        })}
+        <button onClick={salvarSafra} style={btn}>
+          Salvar Safra
+        </button>
 
       </div>
 
@@ -136,13 +201,33 @@ export default function SafrasPage(){
   )
 }
 
-/* 🎨 ESTILO (igual página de análises) */
+/* 🎨 ESTILO PADRÃO */
 
-const cardElegante = {
+const card = {
   background:"#fff",
   padding:20,
-  borderRadius:14,
-  border:"1px solid #e5e7eb"
+  borderRadius:12,
+  boxShadow:"0 2px 6px rgba(0,0,0,0.05)",
+  marginBottom:20,
+  maxWidth:500
+}
+
+const inputFull = {
+  padding:"10px",
+  borderRadius:8,
+  border:"1px solid #ccc",
+  width:"100%",
+  marginBottom:10
+}
+
+const btn = {
+  padding:"10px 16px",
+  background:"#2f4f5f",
+  color:"#fff",
+  border:"none",
+  borderRadius:10,
+  cursor:"pointer",
+  fontWeight:500
 }
 
 const btnVoltar = {
@@ -153,8 +238,10 @@ const btnVoltar = {
   cursor:"pointer"
 }
 
-const linha = {
-  fontSize:14,
-  marginBottom:5,
-  color:"#374151"
+const resumoBox = {
+  background:"#f9fafb",
+  padding:12,
+  borderRadius:10,
+  marginBottom:15,
+  border:"1px solid #e5e7eb"
 }
