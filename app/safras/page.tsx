@@ -108,7 +108,7 @@ export default function HistoricoSafra() {
 
             {/* INDICADORES */}
             <div style={linha}>
-              <b>Produtividade:</b> {numero(s.produtividade, " sc/ha")}
+              <b>Produtividade:</b> {numero(s.produtividade, " sc/alq")}
             </div>
 
             <div style={linha}>
@@ -116,7 +116,7 @@ export default function HistoricoSafra() {
             </div>
 
             <div style={linha}>
-              <b>Preço venda:</b> {moeda(s.preco_venda)}
+              <b>Preço Médio de Venda:</b> {moeda(s.preco_venda)}
             </div>
 
             <div style={linha}>
@@ -124,7 +124,7 @@ export default function HistoricoSafra() {
             </div>
 
             <div style={linha}>
-              <b>Lucro:</b> {moeda(s.lucro)}
+              <b>Lucro por ha:</b> {moeda(s.lucro)}
             </div>
 
           </div>
