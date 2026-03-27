@@ -15,9 +15,7 @@ export default function NovaSafra() {
     area: "",
     produtividade: "",
     custo_ha: "",
-    preco_venda: "",
-    receita: "",
-    lucro: ""
+    preco_venda: ""
   });
 
   useEffect(() => {
@@ -46,7 +44,7 @@ export default function NovaSafra() {
   }
 
   function toNumber(value: string) {
-    if (!value || value.trim() === "") return null;
+    if (!value || value.trim() === "") return 0;
     return Number(value);
   }
 
@@ -57,16 +55,26 @@ export default function NovaSafra() {
       return;
     }
 
+    const area = toNumber(form.area);
+    const produtividade = toNumber(form.produtividade);
+    const custo_ha = toNumber(form.custo_ha);
+    const preco_venda = toNumber(form.preco_venda);
+
+    // 🔥 CÁLCULO AUTOMÁTICO
+    const receita = produtividade * area * preco_venda;
+    const custoTotal = custo_ha * area;
+    const lucro = receita - custoTotal;
+
     const payload = {
       propriedade: form.propriedade,
       safra: form.safra,
       cultura: form.cultura,
-      area: toNumber(form.area),
-      produtividade: toNumber(form.produtividade),
-      custo_ha: toNumber(form.custo_ha),
-      preco_venda: toNumber(form.preco_venda),
-      receita: toNumber(form.receita),
-      lucro: toNumber(form.lucro)
+      area,
+      produtividade,
+      custo_ha,
+      preco_venda,
+      receita,
+      lucro
     };
 
     const { error } = await supabase
@@ -88,40 +96,20 @@ export default function NovaSafra() {
       area: "",
       produtividade: "",
       custo_ha: "",
-      preco_venda: "",
-      receita: "",
-      lucro: ""
+      preco_venda: ""
     });
   }
 
   return (
-    <div style={{
-      padding: "40px 50px",
-      background: "#f3f4f6",
-      minHeight: "100vh"
-    }}>
+    <div style={container}>
 
       {/* HEADER */}
-      <div style={{
-        display: "flex",
-        justifyContent: "space-between",
-        alignItems: "center",
-        marginBottom: 25
-      }}>
+      <div style={header}>
 
-        <div style={{
-          display: "flex",
-          alignItems: "center",
-          gap: 10
-        }}>
+        <div style={{display:"flex", alignItems:"center", gap:10}}>
           <div style={{ fontSize: 22 }}>🌱</div>
 
-          <h1 style={{
-            margin: 0,
-            fontSize: 24,
-            fontWeight: 600,
-            color: "#1f2937"
-          }}>
+          <h1 style={titulo}>
             Safras
           </h1>
         </div>
@@ -154,12 +142,9 @@ export default function NovaSafra() {
         <input name="safra" placeholder="Safra (ex: 2024/25)" value={form.safra} onChange={handleChange} style={inputFull}/>
         <input name="cultura" placeholder="Cultura" value={form.cultura} onChange={handleChange} style={inputFull}/>
         <input name="area" placeholder="Área (ha)" value={form.area} onChange={handleChange} style={inputFull}/>
-
-        <input name="produtividade" placeholder="Produtividade (sc/ha ou alq)" value={form.produtividade} onChange={handleChange} style={inputFull}/>
+        <input name="produtividade" placeholder="Produtividade (sc/ha)" value={form.produtividade} onChange={handleChange} style={inputFull}/>
         <input name="custo_ha" placeholder="Custo por ha (R$)" value={form.custo_ha} onChange={handleChange} style={inputFull}/>
         <input name="preco_venda" placeholder="Preço venda (R$/sc)" value={form.preco_venda} onChange={handleChange} style={inputFull}/>
-        <input name="receita" placeholder="Receita total (R$)" value={form.receita} onChange={handleChange} style={inputFull}/>
-        <input name="lucro" placeholder="Lucro (R$)" value={form.lucro} onChange={handleChange} style={inputFull}/>
 
         <button onClick={salvarSafra} style={btn}>
           Salvar Safra
@@ -171,9 +156,29 @@ export default function NovaSafra() {
   );
 }
 
-/* ESTILO */
+/* 🎨 ESTILO */
 
-const card = {
+const container: React.CSSProperties = {
+  padding: "40px 50px",
+  background: "#f3f4f6",
+  minHeight: "100vh"
+};
+
+const header: React.CSSProperties = {
+  display: "flex",
+  justifyContent: "space-between",
+  alignItems: "center",
+  marginBottom: 25
+};
+
+const titulo: React.CSSProperties = {
+  margin: 0,
+  fontSize: 24,
+  fontWeight: 600,
+  color: "#1f2937"
+};
+
+const card: React.CSSProperties = {
   background: "#fff",
   padding: 20,
   borderRadius: 12,
@@ -181,7 +186,7 @@ const card = {
   marginBottom: 20
 };
 
-const inputFull = {
+const inputFull: React.CSSProperties = {
   padding: "10px",
   borderRadius: 8,
   border: "1px solid #ccc",
@@ -189,7 +194,7 @@ const inputFull = {
   marginBottom: 10
 };
 
-const btn = {
+const btn: React.CSSProperties = {
   padding: "10px 16px",
   background: "#2f4f5f",
   color: "#fff",
@@ -199,7 +204,7 @@ const btn = {
   fontWeight: 500
 };
 
-const btnVoltar = {
+const btnVoltar: React.CSSProperties = {
   padding: "8px 14px",
   background: "#e5e7eb",
   border: "none",
