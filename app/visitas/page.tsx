@@ -52,7 +52,6 @@ export default function VisitasPage(){
   }
 
   async function salvarEdicao(){
-
     const { error } = await supabase
       .from("visitas")
       .update({
@@ -73,7 +72,6 @@ export default function VisitasPage(){
   }
 
   async function excluirVisita(id:string){
-
     const confirmar = confirm("Tem certeza que deseja excluir esta visita?")
     if(!confirmar) return
 
@@ -138,17 +136,13 @@ export default function VisitasPage(){
           </h1>
         </div>
 
-        <div style={{
-          display:"flex",
-          gap:8,
-          alignItems:"center"
-        }}>
+        <div style={{display:"flex", gap:8, alignItems:"center"}}>
           <Link href="/dashboard">
             <button style={btnVoltar}>← Voltar</button>
           </Link>
 
           <Link href="/visitas/nova-visita">
-            <button style={btnPrimary}>+ Nova</button>
+            <button style={btnPrimary}>+ Nova Visita</button>
           </Link>
         </div>
 
@@ -182,29 +176,9 @@ export default function VisitasPage(){
 
           <div key={v.id || index} style={card}>
 
-            {/* HEADER CARD */}
-            <div style={{
-              display:"flex",
-              justifyContent:"space-between",
-              alignItems:"center",
-              marginBottom:10
-            }}>
-
-              <strong style={{fontSize:15}}>
-                {v.propriedade}
-              </strong>
-
-              <div style={{display:"flex", gap:4}}>
-                <button onClick={()=>iniciarEdicao(v)} style={btnIcon}>
-                  ✏️
-                </button>
-
-                <button onClick={()=>excluirVisita(v.id)} style={btnIconDanger}>
-                  🗑️
-                </button>
-              </div>
-
-            </div>
+            <strong style={{fontSize:15}}>
+              {v.propriedade}
+            </strong>
 
             <div style={linha}>
               <b>Data:</b> {formatarData(v.data_visita)}
@@ -273,6 +247,17 @@ export default function VisitasPage(){
               </div>
             )}
 
+            {/* BOTÕES DISCRETOS NO CANTO */}
+            <div style={acoesCard}>
+              <button onClick={()=>iniciarEdicao(v)} style={btnIconMinimal}>
+                ✏️
+              </button>
+
+              <button onClick={()=>excluirVisita(v.id)} style={btnIconMinimal}>
+                🗑️
+              </button>
+            </div>
+
           </div>
 
         ))}
@@ -289,7 +274,8 @@ const card = {
   background:"#fff",
   borderRadius:14,
   padding:16,
-  boxShadow:"0 2px 6px rgba(0,0,0,0.05)"
+  boxShadow:"0 2px 6px rgba(0,0,0,0.05)",
+  position:"relative"
 }
 
 const linha = {
@@ -339,24 +325,6 @@ const btnVoltar = {
   fontSize:13
 }
 
-const btnIcon = {
-  padding:"4px 6px",
-  background:"#f3f4f6",
-  border:"none",
-  borderRadius:6,
-  cursor:"pointer",
-  fontSize:12
-}
-
-const btnIconDanger = {
-  padding:"4px 6px",
-  background:"#fef2f2",
-  border:"none",
-  borderRadius:6,
-  cursor:"pointer",
-  fontSize:12
-}
-
 const btnToggle = {
   marginTop:10,
   padding:"5px 9px",
@@ -371,4 +339,22 @@ const link = {
   fontSize:13,
   color:"#2563eb",
   textDecoration:"none"
+}
+
+/* ✨ NOVO - AÇÕES DISCRETAS */
+
+const acoesCard = {
+  position:"absolute" as const,
+  bottom:10,
+  right:10,
+  display:"flex",
+  gap:6
+}
+
+const btnIconMinimal = {
+  background:"transparent",
+  border:"none",
+  cursor:"pointer",
+  fontSize:13,
+  opacity:0.6
 }
