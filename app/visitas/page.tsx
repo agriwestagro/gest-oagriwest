@@ -13,6 +13,8 @@ export default function VisitasPage(){
   const [filtroPropriedade,setFiltroPropriedade] = useState("")
 
   const [abertos, setAbertos] = useState<number[]>([])
+  const [editandoId, setEditandoId] = useState<string | null>(null)
+  const [formEdit, setFormEdit] = useState<any>({})
 
   useEffect(()=>{
     carregarVisitas()
@@ -42,6 +44,51 @@ export default function VisitasPage(){
     }else{
       setAbertos([...abertos, index])
     }
+  }
+
+  function iniciarEdicao(visita:any){
+    setEditandoId(visita.id)
+    setFormEdit(visita)
+  }
+
+  async function salvarEdicao(){
+
+    const { error } = await supabase
+      .from("visitas")
+      .update({
+        motivo: formEdit.motivo,
+        mensagem_produtor: formEdit.mensagem_produtor,
+        observacao: formEdit.observacao,
+        midia_link: formEdit.midia_link
+      })
+      .eq("id", editandoId)
+
+    if(error){
+      alert("Erro ao atualizar")
+      return
+    }
+
+    setEditandoId(null)
+    carregarVisitas()
+  }
+
+  async function excluirVisita(id:string){
+
+    const confirmar = confirm("Tem certeza que deseja excluir esta visita?")
+
+    if(!confirmar) return
+
+    const { error } = await supabase
+      .from("visitas")
+      .delete()
+      .eq("id", id)
+
+    if(error){
+      alert("Erro ao excluir")
+      return
+    }
+
+    carregarVisitas()
   }
 
   function formatarData(dataString:any){
@@ -80,7 +127,6 @@ export default function VisitasPage(){
       }}>
 
         <div style={{display:"flex", alignItems:"center", gap:10}}>
-          
           <div style={{fontSize:22}}>📋</div>
 
           <h1 style={{
@@ -94,29 +140,19 @@ export default function VisitasPage(){
         </div>
 
         <div style={{display:"flex", gap:10}}>
-
           <Link href="/dashboard">
-            <button style={btnVoltar}>
-              ← Voltar
-            </button>
+            <button style={btnVoltar}>← Voltar</button>
           </Link>
 
           <Link href="/visitas/nova-visita">
-            <button style={btnPrimary}>
-              + Nova Visita
-            </button>
+            <button style={btnPrimary}>+ Nova Visita</button>
           </Link>
-
         </div>
 
       </div>
 
       {/* FILTROS */}
-      <div style={{
-        display:"flex",
-        gap:12,
-        marginBottom:25
-      }}>
+      <div style={{display:"flex", gap:12, marginBottom:25}}>
         <select value={filtroMes} onChange={e=>setFiltroMes(e.target.value)} style={input}>
           <option value="">Todos os meses</option>
           <option value="2026-01">Jan</option>
@@ -143,27 +179,51 @@ export default function VisitasPage(){
 
           <div key={v.id || index} style={card}>
 
-            {/* PROPRIEDADE */}
-            <div style={{marginBottom:10}}>
+            {/* HEADER CARD */}
+            <div style={{
+              display:"flex",
+              justifyContent:"space-between",
+              alignItems:"center",
+              marginBottom:10
+            }}>
+
               <strong style={{fontSize:16}}>
                 {v.propriedade}
               </strong>
+
+              <div style={{display:"flex", gap:6}}>
+                <button onClick={()=>iniciarEdicao(v)} style={btnEdit}>
+                  ✏️
+                </button>
+
+                <button onClick={()=>excluirVisita(v.id)} style={btnDelete}>
+                  🗑️
+                </button>
+              </div>
+
             </div>
 
-            {/* VISÍVEL */}
+            {/* DATA */}
             <div style={linha}>
               <b>Data:</b> {formatarData(v.data_visita)}
             </div>
 
+            {/* MOTIVO */}
             <div style={linha}>
-              <b>Motivo:</b> {v.motivo || "-"}
+              <b>Motivo:</b>{" "}
+              {editandoId === v.id ? (
+                <input
+                  value={formEdit.motivo || ""}
+                  onChange={e=>setFormEdit({...formEdit, motivo:e.target.value})}
+                  style={inputFull}
+                />
+              ) : (
+                v.motivo || "-"
+              )}
             </div>
 
-            {/* BOTÃO */}
-            <button
-              onClick={()=>toggleCard(index)}
-              style={btnToggle}
-            >
+            {/* BOTÃO VER MAIS */}
+            <button onClick={()=>toggleCard(index)} style={btnToggle}>
               {abertos.includes(index) ? "Ocultar" : "Ver mais"}
             </button>
 
@@ -172,25 +232,44 @@ export default function VisitasPage(){
               <div style={{marginTop:10}}>
 
                 <div style={linha}>
-                  <b>Msg Produtor:</b> {v.mensagem_produtor || "-"}
+                  <b>Msg Produtor:</b>{" "}
+                  {editandoId === v.id ? (
+                    <input
+                      value={formEdit.mensagem_produtor || ""}
+                      onChange={e=>setFormEdit({...formEdit, mensagem_produtor:e.target.value})}
+                      style={inputFull}
+                    />
+                  ) : (
+                    v.mensagem_produtor || "-"
+                  )}
                 </div>
 
                 <div style={linha}>
-                  <b>Obs:</b> {v.observacao || "-"}
+                  <b>Obs:</b>{" "}
+                  {editandoId === v.id ? (
+                    <textarea
+                      value={formEdit.observacao || ""}
+                      onChange={e=>setFormEdit({...formEdit, observacao:e.target.value})}
+                      style={textarea}
+                    />
+                  ) : (
+                    v.observacao || "-"
+                  )}
                 </div>
+
+                {editandoId === v.id && (
+                  <button onClick={salvarEdicao} style={btnPrimary}>
+                    Salvar
+                  </button>
+                )}
 
               </div>
             )}
 
-            {/* LINK SEMPRE VISÍVEL */}
+            {/* LINK */}
             {v.midia_link && (
               <div style={{marginTop:12}}>
-                <a
-                  href={v.midia_link}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  style={link}
-                >
+                <a href={v.midia_link} target="_blank" style={link}>
                   🔗 Abrir mídia
                 </a>
               </div>
@@ -218,29 +297,39 @@ const card = {
 const linha = {
   fontSize:14,
   color:"#374151",
-  marginBottom:4
-}
-
-const link = {
-  fontSize:14,
-  color:"#2563eb",
-  textDecoration:"none"
+  marginBottom:6
 }
 
 const input = {
   padding:"10px",
   borderRadius:8,
-  border:"1px solid #d1d5db",
-  fontSize:14
+  border:"1px solid #d1d5db"
+}
+
+const inputFull = {
+  width:"100%",
+  padding:"6px",
+  borderRadius:6,
+  border:"1px solid #ccc",
+  marginTop:4
+}
+
+const textarea = {
+  width:"100%",
+  padding:"6px",
+  borderRadius:6,
+  border:"1px solid #ccc",
+  marginTop:4
 }
 
 const btnPrimary = {
-  padding:"10px 16px",
+  padding:"8px 12px",
   background:"#2f4f5f",
   color:"#fff",
   border:"none",
-  borderRadius:10,
-  cursor:"pointer"
+  borderRadius:8,
+  cursor:"pointer",
+  marginTop:10
 }
 
 const btnVoltar = {
@@ -248,6 +337,22 @@ const btnVoltar = {
   background:"#e5e7eb",
   border:"none",
   borderRadius:10,
+  cursor:"pointer"
+}
+
+const btnEdit = {
+  padding:"5px 8px",
+  background:"#e0f2fe",
+  border:"none",
+  borderRadius:6,
+  cursor:"pointer"
+}
+
+const btnDelete = {
+  padding:"5px 8px",
+  background:"#fee2e2",
+  border:"none",
+  borderRadius:6,
   cursor:"pointer"
 }
 
@@ -259,4 +364,10 @@ const btnToggle = {
   border:"1px solid #d1d5db",
   borderRadius:8,
   cursor:"pointer"
+}
+
+const link = {
+  fontSize:14,
+  color:"#2563eb",
+  textDecoration:"none"
 }
