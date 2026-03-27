@@ -13,11 +13,11 @@ export default function NovaSafra() {
     safra: "",
     cultura: "",
     area: "",
-    produtividade_alq: "",
-    custo_total: "",
-    preco_medio: "",
+    produtividade: "",
+    custo_ha: "",
+    preco_venda: "",
     receita: "",
-    margem: ""
+    lucro: ""
   });
 
   useEffect(() => {
@@ -45,7 +45,6 @@ export default function NovaSafra() {
     });
   }
 
-  // 🔹 Função para evitar NaN
   function toNumber(value: string) {
     if (!value || value.trim() === "") return null;
     return Number(value);
@@ -63,11 +62,11 @@ export default function NovaSafra() {
       safra: form.safra,
       cultura: form.cultura,
       area: toNumber(form.area),
-      produtividade_alqueire: toNumber(form.produtividade_alq),
-      custo_total: toNumber(form.custo_total),
-      preco_medio: toNumber(form.preco_medio),
+      produtividade: toNumber(form.produtividade),
+      custo_ha: toNumber(form.custo_ha),
+      preco_venda: toNumber(form.preco_venda),
       receita: toNumber(form.receita),
-      margem: toNumber(form.margem)
+      lucro: toNumber(form.lucro)
     };
 
     const { error } = await supabase
@@ -87,11 +86,11 @@ export default function NovaSafra() {
       safra: "",
       cultura: "",
       area: "",
-      produtividade_alq: "",
-      custo_total: "",
-      preco_medio: "",
+      produtividade: "",
+      custo_ha: "",
+      preco_venda: "",
       receita: "",
-      margem: ""
+      lucro: ""
     });
   }
 
@@ -152,15 +151,15 @@ export default function NovaSafra() {
           ))}
         </select>
 
-        <input name="safra" placeholder="Safra (ex: 2024/25)" value={form.safra} onChange={handleChange} style={inputFull} />
-        <input name="cultura" placeholder="Cultura" value={form.cultura} onChange={handleChange} style={inputFull} />
-        <input name="area" placeholder="Área (ha)" value={form.area} onChange={handleChange} style={inputFull} />
+        <input name="safra" placeholder="Safra (ex: 2024/25)" value={form.safra} onChange={handleChange} style={inputFull}/>
+        <input name="cultura" placeholder="Cultura" value={form.cultura} onChange={handleChange} style={inputFull}/>
+        <input name="area" placeholder="Área (ha)" value={form.area} onChange={handleChange} style={inputFull}/>
 
-        <input name="produtividade_alq" placeholder="Produtividade (sc/alq)" value={form.produtividade_alq} onChange={handleChange} style={inputFull} />
-        <input name="custo_total" placeholder="Custo total (R$)" value={form.custo_total} onChange={handleChange} style={inputFull} />
-        <input name="preco_medio" placeholder="Preço médio (R$/sc)" value={form.preco_medio} onChange={handleChange} style={inputFull} />
-        <input name="receita" placeholder="Receita total (R$)" value={form.receita} onChange={handleChange} style={inputFull} />
-        <input name="margem" placeholder="Margem (%)" value={form.margem} onChange={handleChange} style={inputFull} />
+        <input name="produtividade" placeholder="Produtividade (sc/ha ou alq)" value={form.produtividade} onChange={handleChange} style={inputFull}/>
+        <input name="custo_ha" placeholder="Custo por ha (R$)" value={form.custo_ha} onChange={handleChange} style={inputFull}/>
+        <input name="preco_venda" placeholder="Preço venda (R$/sc)" value={form.preco_venda} onChange={handleChange} style={inputFull}/>
+        <input name="receita" placeholder="Receita total (R$)" value={form.receita} onChange={handleChange} style={inputFull}/>
+        <input name="lucro" placeholder="Lucro (R$)" value={form.lucro} onChange={handleChange} style={inputFull}/>
 
         <button onClick={salvarSafra} style={btn}>
           Salvar Safra
@@ -172,7 +171,7 @@ export default function NovaSafra() {
   );
 }
 
-/* 🎨 ESTILO */
+/* ESTILO */
 
 const card = {
   background: "#fff",
