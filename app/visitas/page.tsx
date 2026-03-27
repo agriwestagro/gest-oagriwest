@@ -75,7 +75,6 @@ export default function VisitasPage(){
   async function excluirVisita(id:string){
 
     const confirmar = confirm("Tem certeza que deseja excluir esta visita?")
-
     if(!confirmar) return
 
     const { error } = await supabase
@@ -139,13 +138,17 @@ export default function VisitasPage(){
           </h1>
         </div>
 
-        <div style={{display:"flex", gap:10}}>
+        <div style={{
+          display:"flex",
+          gap:8,
+          alignItems:"center"
+        }}>
           <Link href="/dashboard">
             <button style={btnVoltar}>← Voltar</button>
           </Link>
 
           <Link href="/visitas/nova-visita">
-            <button style={btnPrimary}>+ Nova Visita</button>
+            <button style={btnPrimary}>+ Nova</button>
           </Link>
         </div>
 
@@ -187,28 +190,26 @@ export default function VisitasPage(){
               marginBottom:10
             }}>
 
-              <strong style={{fontSize:16}}>
+              <strong style={{fontSize:15}}>
                 {v.propriedade}
               </strong>
 
-              <div style={{display:"flex", gap:6}}>
-                <button onClick={()=>iniciarEdicao(v)} style={btnEdit}>
+              <div style={{display:"flex", gap:4}}>
+                <button onClick={()=>iniciarEdicao(v)} style={btnIcon}>
                   ✏️
                 </button>
 
-                <button onClick={()=>excluirVisita(v.id)} style={btnDelete}>
+                <button onClick={()=>excluirVisita(v.id)} style={btnIconDanger}>
                   🗑️
                 </button>
               </div>
 
             </div>
 
-            {/* DATA */}
             <div style={linha}>
               <b>Data:</b> {formatarData(v.data_visita)}
             </div>
 
-            {/* MOTIVO */}
             <div style={linha}>
               <b>Motivo:</b>{" "}
               {editandoId === v.id ? (
@@ -222,12 +223,10 @@ export default function VisitasPage(){
               )}
             </div>
 
-            {/* BOTÃO VER MAIS */}
             <button onClick={()=>toggleCard(index)} style={btnToggle}>
               {abertos.includes(index) ? "Ocultar" : "Ver mais"}
             </button>
 
-            {/* OCULTO */}
             {abertos.includes(index) && (
               <div style={{marginTop:10}}>
 
@@ -266,7 +265,6 @@ export default function VisitasPage(){
               </div>
             )}
 
-            {/* LINK */}
             {v.midia_link && (
               <div style={{marginTop:12}}>
                 <a href={v.midia_link} target="_blank" style={link}>
@@ -290,18 +288,18 @@ export default function VisitasPage(){
 const card = {
   background:"#fff",
   borderRadius:14,
-  padding:18,
+  padding:16,
   boxShadow:"0 2px 6px rgba(0,0,0,0.05)"
 }
 
 const linha = {
-  fontSize:14,
+  fontSize:13,
   color:"#374151",
   marginBottom:6
 }
 
 const input = {
-  padding:"10px",
+  padding:"9px",
   borderRadius:8,
   border:"1px solid #d1d5db"
 }
@@ -323,7 +321,7 @@ const textarea = {
 }
 
 const btnPrimary = {
-  padding:"8px 12px",
+  padding:"7px 12px",
   background:"#2f4f5f",
   color:"#fff",
   border:"none",
@@ -333,41 +331,44 @@ const btnPrimary = {
 }
 
 const btnVoltar = {
-  padding:"8px 14px",
+  padding:"7px 12px",
   background:"#e5e7eb",
   border:"none",
-  borderRadius:10,
-  cursor:"pointer"
+  borderRadius:8,
+  cursor:"pointer",
+  fontSize:13
 }
 
-const btnEdit = {
-  padding:"5px 8px",
-  background:"#e0f2fe",
+const btnIcon = {
+  padding:"4px 6px",
+  background:"#f3f4f6",
   border:"none",
   borderRadius:6,
-  cursor:"pointer"
+  cursor:"pointer",
+  fontSize:12
 }
 
-const btnDelete = {
-  padding:"5px 8px",
-  background:"#fee2e2",
+const btnIconDanger = {
+  padding:"4px 6px",
+  background:"#fef2f2",
   border:"none",
   borderRadius:6,
-  cursor:"pointer"
+  cursor:"pointer",
+  fontSize:12
 }
 
 const btnToggle = {
   marginTop:10,
-  padding:"6px 10px",
-  fontSize:13,
-  background:"#f3f4f6",
-  border:"1px solid #d1d5db",
+  padding:"5px 9px",
+  fontSize:12,
+  background:"#f9fafb",
+  border:"1px solid #e5e7eb",
   borderRadius:8,
   cursor:"pointer"
 }
 
 const link = {
-  fontSize:14,
+  fontSize:13,
   color:"#2563eb",
   textDecoration:"none"
 }
