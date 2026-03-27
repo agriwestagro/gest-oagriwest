@@ -2,112 +2,137 @@
 
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
+import Link from "next/link";
 
-export default function NovaSafra() {
+export default function HistoricoSafra() {
 
-  const [propriedades, setPropriedades] = useState<any[]>([]);
-
-  const [form, setForm] = useState({
-    propriedade: "",
-    safra: "",
-    cultura: "",
-    area: "",
-    produtividade: "",
-    custo_ha: "",
-    preco_venda: "",
-    receita: "",
-    lucro: ""
-  });
+  const [dados, setDados] = useState<any[]>([]);
+  const [propriedades, setPropriedades] = useState<string[]>([]);
+  const [filtroPropriedade, setFiltroPropriedade] = useState("");
 
   useEffect(() => {
-    carregarPropriedades();
+    carregarDados();
   }, []);
 
-  async function carregarPropriedades() {
-    const { data } = await supabase.from("propriedades").select("*");
-    setPropriedades(data || []);
-  }
+  async function carregarDados() {
 
-  function handleChange(e:any){
-    setForm({
-      ...form,
-      [e.target.name]: e.target.value
-    });
-  }
-
-  async function salvarSafra(){
-
-    const { error } = await supabase
+    const { data, error } = await supabase
       .from("safras")
-      .insert([form]);
+      .select("*")
+      .order("created_at", { ascending: false });
 
-    if(error){
-      alert("Erro ao salvar");
+    if (error) {
+      console.error(error);
+      alert("Erro ao carregar histórico");
       return;
     }
 
-    alert("Safra salva com sucesso");
+    const lista = data || [];
 
-    setForm({
-      propriedade: "",
-      safra: "",
-      cultura: "",
-      area: "",
-      produtividade: "",
-      custo_ha: "",
-      preco_venda: "",
-      receita: "",
-      lucro: ""
-    });
+    setDados(lista);
 
+    // propriedades únicas
+    const propsUnicas = [...new Set(lista.map(d => d.propriedade))];
+    setPropriedades(propsUnicas);
   }
 
-  return(
+  const filtrado = filtroPropriedade
+    ? dados.filter(d => d.propriedade === filtroPropriedade)
+    : dados;
 
-    <div style={{padding:40}}>
+  function formatarMoeda(valor: number) {
+    if (!valor) return "R$ 0,00";
+    return valor.toLocaleString("pt-BR", {
+      style: "currency",
+      currency: "BRL"
+    });
+  }
 
-      <h1>Cadastro de Safra</h1>
+  return (
 
-      <br/>
+    <div style={{ padding: "40px 50px", background: "#f3f4f6", minHeight: "100vh" }}>
 
-      <select name="propriedade" onChange={handleChange}>
-        <option value="">Selecione a propriedade</option>
-        {propriedades.map((p,index)=>(
-          <option key={index} value={p.nome}>{p.nome}</option>
-        ))}
-      </select>
+      {/* HEADER */}
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 25 }}>
 
-      <br/><br/>
+        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+          <div style={{ fontSize: 22 }}>📊</div>
 
-      <input name="safra" placeholder="Safra" onChange={handleChange}/>
-      <br/><br/>
+          <h1 style={{ margin: 0, fontSize: 24, fontWeight: 600, color: "#1f2937" }}>
+            Histórico de Safras
+          </h1>
+        </div>
 
-      <input name="cultura" placeholder="Cultura" onChange={handleChange}/>
-      <br/><br/>
+        <Link href="/dashboard">
+          <button style={btnVoltar}>
+            ← Dashboard
+          </button>
+        </Link>
 
-      <input name="area" placeholder="Área" onChange={handleChange}/>
-      <br/><br/>
+      </div>
 
-      <input name="produtividade" placeholder="Produtividade" onChange={handleChange}/>
-      <br/><br/>
+      {/* FILTRO */}
+      <div style={card}>
 
-      <input name="custo_ha" placeholder="Custo/ha" onChange={handleChange}/>
-      <br/><br/>
+        <h3 style={{ marginBottom: 10 }}>Filtrar por propriedade</h3>
 
-      <input name="preco_venda" placeholder="Preço venda" onChange={handleChange}/>
-      <br/><br/>
+        <select
+          value={filtroPropriedade}
+          onChange={(e) => setFiltroPropriedade(e.target.value)}
+          style={inputFull}
+        >
+          <option value="">Todas</option>
+          {propriedades.map((p, i) => (
+            <option key={i} value={p}>{p}</option>
+          ))}
+        </select>
 
-      <input name="receita" placeholder="Receita" onChange={handleChange}/>
-      <br/><br/>
+      </div>
 
-      <input name="lucro" placeholder="Lucro" onChange={handleChange}/>
-      <br/><br/>
+      {/* LISTA */}
+      {filtrado.map((s, index) => (
 
-      <button onClick={salvarSafra}>
-        Salvar
-      </button>
+        <div key={index} style={card}>
+
+          <h3>{s.propriedade}</h3>
+
+          <p>📅 Safra: {s.safra}</p>
+          <p>🌾 Cultura: {s.cultura}</p>
+          <p>📐 Área: {s.area || 0} ha</p>
+          <p>🚜 Produtividade: {s.produtividade || 0}</p>
+          <p>💸 Custo/ha: {formatarMoeda(s.custo_ha)}</p>
+          <p>💰 Receita: {formatarMoeda(s.receita)}</p>
+          <p>📈 Lucro: {formatarMoeda(s.lucro)}</p>
+
+        </div>
+
+      ))}
 
     </div>
-
-  )
+  );
 }
+
+/* ESTILO */
+
+const card = {
+  background: "#fff",
+  padding: 20,
+  borderRadius: 12,
+  boxShadow: "0 2px 6px rgba(0,0,0,0.05)",
+  marginBottom: 20
+};
+
+const inputFull = {
+  padding: "10px",
+  borderRadius: 8,
+  border: "1px solid #ccc",
+  width: "100%"
+};
+
+const btnVoltar = {
+  padding: "8px 14px",
+  background: "#e5e7eb",
+  border: "none",
+  borderRadius: 10,
+  cursor: "pointer"
+};
