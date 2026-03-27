@@ -59,168 +59,165 @@ export default function HistoricoSafra() {
       <div style={header}>
 
         <div style={{display:"flex", alignItems:"center", gap:10}}>
-          <div style={{ fontSize: 22 }}>📊</div>
-          <h1 style={titulo}>Histórico de Safras</h1>
+          <div style={{fontSize:22}}>📊</div>
+
+          <h1 style={titulo}>
+            Histórico de Safras
+          </h1>
         </div>
 
         <Link href="/dashboard">
-          <button style={btnVoltar}>← Dashboard</button>
+          <button style={btnVoltar}>← Voltar</button>
         </Link>
 
       </div>
 
       {/* FILTRO */}
-      <div style={card}>
-
-        <h3 style={{marginBottom:10}}>Propriedade</h3>
-
+      <div style={filtros}>
         <select
           value={filtro}
           onChange={(e)=>setFiltro(e.target.value)}
           style={input}
         >
-          <option value="">Todas</option>
+          <option value="">Todas propriedades</option>
           {propriedades.map((p,i)=>(
             <option key={i} value={p}>{p}</option>
           ))}
         </select>
-
       </div>
 
-      {/* LISTA */}
-      {filtrado.map((s, index) => (
+      {/* GRID */}
+      <div style={grid}>
 
-        <div key={index} style={card}>
+        {filtrado.map((s, index) => (
 
-          {/* TOPO */}
-          <div style={topo}>
+          <div key={index} style={card}>
 
-            <div>
-              <h3 style={{margin:0}}>{s.propriedade}</h3>
-              <span style={sub}>
-                {s.safra} • {s.cultura}
-              </span>
+            {/* TOPO */}
+            <div style={topo}>
+
+              <div>
+                <strong>{s.propriedade}</strong>
+
+                <div style={sub}>
+                  {s.safra} • {s.cultura}
+                </div>
+              </div>
+
+              <div style={areaBox}>
+                {numero(s.area, " ha")}
+              </div>
+
             </div>
 
-            <div style={areaBox}>
-              {numero(s.area, " ha")}
+            {/* INDICADORES */}
+            <div style={linha}>
+              <b>Produtividade:</b> {numero(s.produtividade, " sc/ha")}
             </div>
 
-          </div>
-
-          {/* GRID */}
-          <div style={grid}>
-
-            <div style={item}>
-              <span style={label}>Produtividade</span>
-              <strong>{numero(s.produtividade, " sc/ha")}</strong>
+            <div style={linha}>
+              <b>Custo/ha:</b> {moeda(s.custo_ha)}
             </div>
 
-            <div style={item}>
-              <span style={label}>Custo/ha</span>
-              <strong>{moeda(s.custo_ha)}</strong>
+            <div style={linha}>
+              <b>Preço venda:</b> {moeda(s.preco_venda)}
             </div>
 
-            <div style={item}>
-              <span style={label}>Preço venda</span>
-              <strong>{moeda(s.preco_venda)}</strong>
+            <div style={linha}>
+              <b>Receita:</b> {moeda(s.receita)}
             </div>
 
-            <div style={item}>
-              <span style={label}>Receita</span>
-              <strong>{moeda(s.receita)}</strong>
-            </div>
-
-            <div style={item}>
-              <span style={label}>Lucro</span>
-              <strong>{moeda(s.lucro)}</strong>
+            <div style={linha}>
+              <b>Lucro:</b> {moeda(s.lucro)}
             </div>
 
           </div>
 
-        </div>
+        ))}
 
-      ))}
+      </div>
 
     </div>
   );
 }
 
-/* 🎨 ESTILO */
+/* 🎨 ESTILO PADRÃO VISITAS */
 
-const container = {
-  padding: "40px 50px",
-  background: "#f3f4f6",
-  minHeight: "100vh"
-};
+const container: React.CSSProperties = {
+  padding:"40px 50px",
+  background:"#f3f4f6",
+  minHeight:"100vh"
+}
 
-const header = {
-  display: "flex",
-  justifyContent: "space-between",
-  alignItems: "center",
-  marginBottom: 25
-};
+const header: React.CSSProperties = {
+  display:"flex",
+  justifyContent:"space-between",
+  alignItems:"center",
+  marginBottom:30
+}
 
-const titulo = {
-  margin: 0,
-  fontSize: 24,
-  fontWeight: 600
-};
+const titulo: React.CSSProperties = {
+  margin:0,
+  fontSize:24,
+  fontWeight:600,
+  color:"#1f2937"
+}
 
-const card = {
-  background: "#fff",
-  padding: 20,
-  borderRadius: 12,
-  boxShadow: "0 2px 6px rgba(0,0,0,0.05)",
-  marginBottom: 15
-};
+const filtros: React.CSSProperties = {
+  display:"flex",
+  gap:12,
+  marginBottom:25
+}
 
-const input = {
-  padding: "10px",
-  borderRadius: 8,
-  border: "1px solid #ccc",
-  width: "100%"
-};
+const grid: React.CSSProperties = {
+  display:"grid",
+  gridTemplateColumns:"repeat(auto-fill, minmax(300px, 1fr))",
+  gap:20
+}
 
-const btnVoltar = {
-  padding: "8px 14px",
-  background: "#e5e7eb",
-  border: "none",
-  borderRadius: 10,
-  cursor: "pointer"
-};
+const card: React.CSSProperties = {
+  background:"#fff",
+  borderRadius:14,
+  padding:16,
+  boxShadow:"0 2px 6px rgba(0,0,0,0.05)"
+}
 
-const topo = {
-  display: "flex",
-  justifyContent: "space-between",
-  marginBottom: 15
-};
+const topo: React.CSSProperties = {
+  display:"flex",
+  justifyContent:"space-between",
+  marginBottom:10
+}
 
-const sub = {
-  fontSize: 13,
-  color: "#6b7280"
-};
+const sub: React.CSSProperties = {
+  fontSize:12,
+  color:"#6b7280"
+}
 
-const areaBox = {
-  background: "#eef2ff",
-  padding: "6px 12px",
-  borderRadius: 8,
-  fontWeight: 600
-};
+const areaBox: React.CSSProperties = {
+  background:"#eef2ff",
+  padding:"5px 10px",
+  borderRadius:8,
+  fontWeight:600,
+  fontSize:12
+}
 
-const grid = {
-  display: "grid",
-  gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))",
-  gap: 10
-};
+const linha: React.CSSProperties = {
+  fontSize:13,
+  color:"#374151",
+  marginBottom:6
+}
 
-const item = {
-  background: "#f9fafb",
-  padding: 10,
-  borderRadius: 8
-};
+const input: React.CSSProperties = {
+  padding:"9px",
+  borderRadius:8,
+  border:"1px solid #d1d5db"
+}
 
-const label = {
-  fontSize: 12,
-  color: "#6b7280"
-};
+const btnVoltar: React.CSSProperties = {
+  padding:"7px 12px",
+  background:"#e5e7eb",
+  border:"none",
+  borderRadius:8,
+  cursor:"pointer",
+  fontSize:13
+}
