@@ -100,12 +100,8 @@ export default function HistoricoSafra() {
                 <strong>{s.propriedade}</strong>
 
                 <div style={sub}>
-                  {s.safra} • {s.cultura}
+                  {s.safra} • {s.cultura} • {numero(s.area, " ha")}
                 </div>
-              </div>
-
-              <div style={areaBox}>
-                {numero(s.area, " ha")}
               </div>
 
             </div>
@@ -141,7 +137,7 @@ export default function HistoricoSafra() {
   );
 }
 
-/* 🎨 ESTILO PADRÃO VISITAS */
+/* 🎨 ESTILO PADRÃO */
 
 const container: React.CSSProperties = {
   padding:"40px 50px",
@@ -191,14 +187,6 @@ const topo: React.CSSProperties = {
 const sub: React.CSSProperties = {
   fontSize:12,
   color:"#6b7280"
-}
-
-const areaBox: React.CSSProperties = {
-  background:"#eef2ff",
-  padding:"5px 10px",
-  borderRadius:8,
-  fontWeight:600,
-  fontSize:12
 }
 
 const linha: React.CSSProperties = {
