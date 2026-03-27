@@ -45,9 +45,17 @@ export default function NovaSafra() {
     });
   }
 
+  // 🔥 CORREÇÃO AQUI
   function toNumber(value: string) {
     if (!value || value.trim() === "") return null;
-    return Number(value);
+
+    const tratado = value.replace(",", "."); // aceita padrão BR
+
+    const numero = Number(tratado);
+
+    if (isNaN(numero)) return null;
+
+    return numero;
   }
 
   async function salvarSafra() {
