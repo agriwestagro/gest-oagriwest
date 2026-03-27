@@ -45,12 +45,10 @@ export default function NovaSafra() {
     });
   }
 
-  // 🔥 CORREÇÃO AQUI
   function toNumber(value: string) {
     if (!value || value.trim() === "") return null;
 
-    const tratado = value.replace(",", "."); // aceita padrão BR
-
+    const tratado = value.replace(",", ".");
     const numero = Number(tratado);
 
     if (isNaN(numero)) return null;
@@ -145,11 +143,19 @@ export default function NovaSafra() {
         <input name="safra" placeholder="Safra (ex: 2024/25)" value={form.safra} onChange={handleChange} style={inputFull}/>
         <input name="cultura" placeholder="Cultura" value={form.cultura} onChange={handleChange} style={inputFull}/>
         <input name="area" placeholder="Área (ha)" value={form.area} onChange={handleChange} style={inputFull}/>
-        <input name="produtividade" placeholder="Produtividade (sc/ha ou alq)" value={form.produtividade} onChange={handleChange} style={inputFull}/>
+
+        {/* ALTERADO */}
+        <input name="produtividade" placeholder="Produtividade (sc/alq)" value={form.produtividade} onChange={handleChange} style={inputFull}/>
+
         <input name="custo_ha" placeholder="Custo por ha (R$)" value={form.custo_ha} onChange={handleChange} style={inputFull}/>
-        <input name="preco_venda" placeholder="Preço venda (R$/sc)" value={form.preco_venda} onChange={handleChange} style={inputFull}/>
+
+        {/* ALTERADO */}
+        <input name="preco_venda" placeholder="Preço Médio de Venda (R$/sc)" value={form.preco_venda} onChange={handleChange} style={inputFull}/>
+
         <input name="receita" placeholder="Receita total (R$)" value={form.receita} onChange={handleChange} style={inputFull}/>
-        <input name="lucro" placeholder="Lucro (R$)" value={form.lucro} onChange={handleChange} style={inputFull}/>
+
+        {/* ALTERADO */}
+        <input name="lucro" placeholder="Lucro por ha (R$/ha)" value={form.lucro} onChange={handleChange} style={inputFull}/>
 
         <button onClick={salvarSafra} style={btn}>
           Salvar Safra
