@@ -12,6 +12,8 @@ export default function VisitasPage(){
   const [filtroMes,setFiltroMes] = useState("")
   const [filtroPropriedade,setFiltroPropriedade] = useState("")
 
+  const [abertos, setAbertos] = useState<number[]>([])
+
   useEffect(()=>{
     carregarVisitas()
     carregarPropriedades()
@@ -34,7 +36,14 @@ export default function VisitasPage(){
     setPropriedades(data?.map(p=>p.nome) || [])
   }
 
-  // ✅ CORREÇÃO FINAL DE DATA E HORA
+  function toggleCard(index:number){
+    if(abertos.includes(index)){
+      setAbertos(abertos.filter(i => i !== index))
+    }else{
+      setAbertos([...abertos, index])
+    }
+  }
+
   function formatarData(dataString:any){
     if(!dataString) return "-"
 
@@ -134,12 +143,14 @@ export default function VisitasPage(){
 
           <div key={v.id || index} style={card}>
 
+            {/* PROPRIEDADE */}
             <div style={{marginBottom:10}}>
               <strong style={{fontSize:16}}>
                 {v.propriedade}
               </strong>
             </div>
 
+            {/* VISÍVEL */}
             <div style={linha}>
               <b>Data:</b> {formatarData(v.data_visita)}
             </div>
@@ -148,16 +159,32 @@ export default function VisitasPage(){
               <b>Motivo:</b> {v.motivo || "-"}
             </div>
 
-            <div style={linha}>
-              <b>Msg Produtor:</b> {v.mensagem_produtor || "-"}
-            </div>
+            {/* BOTÃO */}
+            <button
+              onClick={()=>toggleCard(index)}
+              style={btnToggle}
+            >
+              {abertos.includes(index) ? "Ocultar" : "Ver mais"}
+            </button>
 
-            <div style={linha}>
-              <b>Obs:</b> {v.observacao || "-"}
-            </div>
-
-            {v.midia_link && (
+            {/* OCULTO */}
+            {abertos.includes(index) && (
               <div style={{marginTop:10}}>
+
+                <div style={linha}>
+                  <b>Msg Produtor:</b> {v.mensagem_produtor || "-"}
+                </div>
+
+                <div style={linha}>
+                  <b>Obs:</b> {v.observacao || "-"}
+                </div>
+
+              </div>
+            )}
+
+            {/* LINK SEMPRE VISÍVEL */}
+            {v.midia_link && (
+              <div style={{marginTop:12}}>
                 <a
                   href={v.midia_link}
                   target="_blank"
@@ -179,7 +206,7 @@ export default function VisitasPage(){
   )
 }
 
-/* 🎨 ESTILO PADRÃO */
+/* 🎨 ESTILO */
 
 const card = {
   background:"#fff",
@@ -221,5 +248,15 @@ const btnVoltar = {
   background:"#e5e7eb",
   border:"none",
   borderRadius:10,
+  cursor:"pointer"
+}
+
+const btnToggle = {
+  marginTop:10,
+  padding:"6px 10px",
+  fontSize:13,
+  background:"#f3f4f6",
+  border:"1px solid #d1d5db",
+  borderRadius:8,
   cursor:"pointer"
 }
