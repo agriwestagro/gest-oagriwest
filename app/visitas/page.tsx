@@ -35,7 +35,7 @@ export default function VisitasPage(){
       .from("propriedades")
       .select("nome")
 
-    setPropriedades(data?.map(p=>p.nome) || [])
+    setPropriedades(data?.map((p:any)=>p.nome) || [])
   }
 
   function toggleCard(index:number){
@@ -109,34 +109,20 @@ export default function VisitasPage(){
 
   return(
 
-    <div style={{
-      padding:"40px 50px",
-      background:"#f3f4f6",
-      minHeight:"100vh"
-    }}>
+    <div style={container}>
 
       {/* HEADER */}
-      <div style={{
-        display:"flex",
-        justifyContent:"space-between",
-        alignItems:"center",
-        marginBottom:30
-      }}>
+      <div style={header}>
 
         <div style={{display:"flex", alignItems:"center", gap:10}}>
           <div style={{fontSize:22}}>📋</div>
 
-          <h1 style={{
-            margin:0,
-            fontSize:24,
-            fontWeight:600,
-            color:"#1f2937"
-          }}>
+          <h1 style={titulo}>
             Visitas
           </h1>
         </div>
 
-        <div style={{display:"flex", gap:8, alignItems:"center"}}>
+        <div style={{display:"flex", gap:8}}>
           <Link href="/dashboard">
             <button style={btnVoltar}>← Voltar</button>
           </Link>
@@ -149,7 +135,7 @@ export default function VisitasPage(){
       </div>
 
       {/* FILTROS */}
-      <div style={{display:"flex", gap:12, marginBottom:25}}>
+      <div style={filtros}>
         <select value={filtroMes} onChange={e=>setFiltroMes(e.target.value)} style={input}>
           <option value="">Todos os meses</option>
           <option value="2026-01">Jan</option>
@@ -166,19 +152,13 @@ export default function VisitasPage(){
       </div>
 
       {/* GRID */}
-      <div style={{
-        display:"grid",
-        gridTemplateColumns:"repeat(auto-fill, minmax(300px, 1fr))",
-        gap:20
-      }}>
+      <div style={grid}>
 
         {visitasFiltradas.map((v,index)=>(
 
           <div key={v.id || index} style={card}>
 
-            <strong style={{fontSize:15}}>
-              {v.propriedade}
-            </strong>
+            <strong>{v.propriedade}</strong>
 
             <div style={linha}>
               <b>Data:</b> {formatarData(v.data_visita)}
@@ -247,13 +227,13 @@ export default function VisitasPage(){
               </div>
             )}
 
-            {/* BOTÕES DISCRETOS NO CANTO */}
+            {/* AÇÕES */}
             <div style={acoesCard}>
-              <button onClick={()=>iniciarEdicao(v)} style={btnIconMinimal}>
+              <button onClick={()=>iniciarEdicao(v)} style={btnIcon}>
                 ✏️
               </button>
 
-              <button onClick={()=>excluirVisita(v.id)} style={btnIconMinimal}>
+              <button onClick={()=>excluirVisita(v.id)} style={btnIcon}>
                 🗑️
               </button>
             </div>
@@ -268,9 +248,41 @@ export default function VisitasPage(){
   )
 }
 
-/* 🎨 ESTILO */
+/* 🎨 ESTILOS TIPADOS */
 
-const card = {
+const container: React.CSSProperties = {
+  padding:"40px 50px",
+  background:"#f3f4f6",
+  minHeight:"100vh"
+}
+
+const header: React.CSSProperties = {
+  display:"flex",
+  justifyContent:"space-between",
+  alignItems:"center",
+  marginBottom:30
+}
+
+const titulo: React.CSSProperties = {
+  margin:0,
+  fontSize:24,
+  fontWeight:600,
+  color:"#1f2937"
+}
+
+const filtros: React.CSSProperties = {
+  display:"flex",
+  gap:12,
+  marginBottom:25
+}
+
+const grid: React.CSSProperties = {
+  display:"grid",
+  gridTemplateColumns:"repeat(auto-fill, minmax(300px, 1fr))",
+  gap:20
+}
+
+const card: React.CSSProperties = {
   background:"#fff",
   borderRadius:14,
   padding:16,
@@ -278,19 +290,19 @@ const card = {
   position:"relative"
 }
 
-const linha = {
+const linha: React.CSSProperties = {
   fontSize:13,
   color:"#374151",
   marginBottom:6
 }
 
-const input = {
+const input: React.CSSProperties = {
   padding:"9px",
   borderRadius:8,
   border:"1px solid #d1d5db"
 }
 
-const inputFull = {
+const inputFull: React.CSSProperties = {
   width:"100%",
   padding:"6px",
   borderRadius:6,
@@ -298,7 +310,7 @@ const inputFull = {
   marginTop:4
 }
 
-const textarea = {
+const textarea: React.CSSProperties = {
   width:"100%",
   padding:"6px",
   borderRadius:6,
@@ -306,7 +318,7 @@ const textarea = {
   marginTop:4
 }
 
-const btnPrimary = {
+const btnPrimary: React.CSSProperties = {
   padding:"7px 12px",
   background:"#2f4f5f",
   color:"#fff",
@@ -316,7 +328,7 @@ const btnPrimary = {
   marginTop:10
 }
 
-const btnVoltar = {
+const btnVoltar: React.CSSProperties = {
   padding:"7px 12px",
   background:"#e5e7eb",
   border:"none",
@@ -325,7 +337,7 @@ const btnVoltar = {
   fontSize:13
 }
 
-const btnToggle = {
+const btnToggle: React.CSSProperties = {
   marginTop:10,
   padding:"5px 9px",
   fontSize:12,
@@ -335,23 +347,21 @@ const btnToggle = {
   cursor:"pointer"
 }
 
-const link = {
+const link: React.CSSProperties = {
   fontSize:13,
   color:"#2563eb",
   textDecoration:"none"
 }
 
-/* ✨ NOVO - AÇÕES DISCRETAS */
-
-const acoesCard = {
-  position:"absolute" as const,
+const acoesCard: React.CSSProperties = {
+  position:"absolute",
   bottom:10,
   right:10,
   display:"flex",
   gap:6
 }
 
-const btnIconMinimal = {
+const btnIcon: React.CSSProperties = {
   background:"transparent",
   border:"none",
   cursor:"pointer",
