@@ -8,7 +8,7 @@ export default function HistoricoSafra() {
 
   const [dados, setDados] = useState<any[]>([]);
   const [propriedades, setPropriedades] = useState<string[]>([]);
-  const [filtroPropriedade, setFiltroPropriedade] = useState("");
+  const [filtro, setFiltro] = useState("");
 
   useEffect(() => {
     carregarDados();
@@ -23,50 +23,48 @@ export default function HistoricoSafra() {
 
     if (error) {
       console.error(error);
-      alert("Erro ao carregar histórico");
+      alert("Erro ao carregar");
       return;
     }
 
     const lista = data || [];
-
     setDados(lista);
 
-    // propriedades únicas
-    const propsUnicas = [...new Set(lista.map(d => d.propriedade))];
-    setPropriedades(propsUnicas);
+    const props = [...new Set(lista.map(d => d.propriedade))];
+    setPropriedades(props);
   }
 
-  const filtrado = filtroPropriedade
-    ? dados.filter(d => d.propriedade === filtroPropriedade)
+  const filtrado = filtro
+    ? dados.filter(d => d.propriedade === filtro)
     : dados;
 
-  function formatarMoeda(valor: number) {
-    if (!valor) return "R$ 0,00";
-    return valor.toLocaleString("pt-BR", {
+  function moeda(v: any) {
+    if (v === null || v === undefined) return "-";
+    return Number(v).toLocaleString("pt-BR", {
       style: "currency",
       currency: "BRL"
     });
   }
 
+  function numero(v: any, sufixo = "") {
+    if (v === null || v === undefined) return "-";
+    return `${v}${sufixo}`;
+  }
+
   return (
 
-    <div style={{ padding: "40px 50px", background: "#f3f4f6", minHeight: "100vh" }}>
+    <div style={container}>
 
       {/* HEADER */}
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 25 }}>
+      <div style={header}>
 
-        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+        <div style={{display:"flex", alignItems:"center", gap:10}}>
           <div style={{ fontSize: 22 }}>📊</div>
-
-          <h1 style={{ margin: 0, fontSize: 24, fontWeight: 600, color: "#1f2937" }}>
-            Histórico de Safras
-          </h1>
+          <h1 style={titulo}>Histórico de Safras</h1>
         </div>
 
         <Link href="/dashboard">
-          <button style={btnVoltar}>
-            ← Dashboard
-          </button>
+          <button style={btnVoltar}>← Dashboard</button>
         </Link>
 
       </div>
@@ -74,15 +72,15 @@ export default function HistoricoSafra() {
       {/* FILTRO */}
       <div style={card}>
 
-        <h3 style={{ marginBottom: 10 }}>Filtrar por propriedade</h3>
+        <h3 style={{marginBottom:10}}>Propriedade</h3>
 
         <select
-          value={filtroPropriedade}
-          onChange={(e) => setFiltroPropriedade(e.target.value)}
-          style={inputFull}
+          value={filtro}
+          onChange={(e)=>setFiltro(e.target.value)}
+          style={input}
         >
           <option value="">Todas</option>
-          {propriedades.map((p, i) => (
+          {propriedades.map((p,i)=>(
             <option key={i} value={p}>{p}</option>
           ))}
         </select>
@@ -94,15 +92,51 @@ export default function HistoricoSafra() {
 
         <div key={index} style={card}>
 
-          <h3>{s.propriedade}</h3>
+          {/* TOPO */}
+          <div style={topo}>
 
-          <p>📅 Safra: {s.safra}</p>
-          <p>🌾 Cultura: {s.cultura}</p>
-          <p>📐 Área: {s.area || 0} ha</p>
-          <p>🚜 Produtividade: {s.produtividade || 0}</p>
-          <p>💸 Custo/ha: {formatarMoeda(s.custo_ha)}</p>
-          <p>💰 Receita: {formatarMoeda(s.receita)}</p>
-          <p>📈 Lucro: {formatarMoeda(s.lucro)}</p>
+            <div>
+              <h3 style={{margin:0}}>{s.propriedade}</h3>
+              <span style={sub}>
+                {s.safra} • {s.cultura}
+              </span>
+            </div>
+
+            <div style={areaBox}>
+              {numero(s.area, " ha")}
+            </div>
+
+          </div>
+
+          {/* GRID */}
+          <div style={grid}>
+
+            <div style={item}>
+              <span style={label}>Produtividade</span>
+              <strong>{numero(s.produtividade, " sc/ha")}</strong>
+            </div>
+
+            <div style={item}>
+              <span style={label}>Custo/ha</span>
+              <strong>{moeda(s.custo_ha)}</strong>
+            </div>
+
+            <div style={item}>
+              <span style={label}>Preço venda</span>
+              <strong>{moeda(s.preco_venda)}</strong>
+            </div>
+
+            <div style={item}>
+              <span style={label}>Receita</span>
+              <strong>{moeda(s.receita)}</strong>
+            </div>
+
+            <div style={item}>
+              <span style={label}>Lucro</span>
+              <strong>{moeda(s.lucro)}</strong>
+            </div>
+
+          </div>
 
         </div>
 
@@ -112,17 +146,36 @@ export default function HistoricoSafra() {
   );
 }
 
-/* ESTILO */
+/* 🎨 ESTILO */
+
+const container = {
+  padding: "40px 50px",
+  background: "#f3f4f6",
+  minHeight: "100vh"
+};
+
+const header = {
+  display: "flex",
+  justifyContent: "space-between",
+  alignItems: "center",
+  marginBottom: 25
+};
+
+const titulo = {
+  margin: 0,
+  fontSize: 24,
+  fontWeight: 600
+};
 
 const card = {
   background: "#fff",
   padding: 20,
   borderRadius: 12,
   boxShadow: "0 2px 6px rgba(0,0,0,0.05)",
-  marginBottom: 20
+  marginBottom: 15
 };
 
-const inputFull = {
+const input = {
   padding: "10px",
   borderRadius: 8,
   border: "1px solid #ccc",
@@ -135,4 +188,39 @@ const btnVoltar = {
   border: "none",
   borderRadius: 10,
   cursor: "pointer"
+};
+
+const topo = {
+  display: "flex",
+  justifyContent: "space-between",
+  marginBottom: 15
+};
+
+const sub = {
+  fontSize: 13,
+  color: "#6b7280"
+};
+
+const areaBox = {
+  background: "#eef2ff",
+  padding: "6px 12px",
+  borderRadius: 8,
+  fontWeight: 600
+};
+
+const grid = {
+  display: "grid",
+  gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))",
+  gap: 10
+};
+
+const item = {
+  background: "#f9fafb",
+  padding: 10,
+  borderRadius: 8
+};
+
+const label = {
+  fontSize: 12,
+  color: "#6b7280"
 };
