@@ -2,9 +2,11 @@
 
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
-import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 export default function RankingPage() {
+
+  const router = useRouter();
 
   const [dados,setDados] = useState<any[]>([])
   const [ranking,setRanking] = useState<any[]>([])
@@ -103,11 +105,17 @@ export default function RankingPage() {
     setRanking(lista)
   }
 
-  function formatarMoeda(valor:number){
-    return valor.toLocaleString("pt-BR", {
+  function moeda(v: any) {
+    if (v === null || v === undefined) return "-";
+    return Number(v).toLocaleString("pt-BR", {
       style: "currency",
       currency: "BRL"
-    })
+    });
+  }
+
+  function numero(v: any, sufixo = "") {
+    if (v === null || v === undefined) return "-";
+    return `${v}${sufixo}`;
   }
 
   function getMedalha(index:number){
@@ -117,218 +125,247 @@ export default function RankingPage() {
     return `${index + 1}º`
   }
 
-  function botaoAtivo(valor:string){
-    return tipo === valor
-      ? {...btnTipo, background:"#16a34a", color:"#fff", border:"none"}
-      : btnTipo
-  }
+  return (
 
-  return(
+    <>
+      <style>{`
+        body {
+          margin: 0;
+          font-family: Arial, sans-serif;
+          background: #f4f6f9;
+        }
 
-    <div style={container}>
+        .container {
+          padding: 30px;
+          max-width: 1200px;
+          margin: 0 auto;
+        }
 
-      {/* HEADER */}
-      <div style={header}>
+        .header {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          margin-bottom: 30px;
+        }
 
-        <div>
-          <h1 style={titulo}>Ranking de Propriedades</h1>
-          <div style={subtitulo}>
-            Compare desempenho entre áreas (visão gerencial)
+        .title {
+          font-size: 24px;
+          font-weight: bold;
+          display: flex;
+          align-items: center;
+          gap: 10px;
+        }
+
+        .actions {
+          display: flex;
+          gap: 10px;
+        }
+
+        .btn {
+          padding: 10px 16px;
+          border: none;
+          border-radius: 10px;
+          cursor: pointer;
+          font-weight: bold;
+        }
+
+        .btn-secondary {
+          background: #e4e7eb;
+        }
+
+        .filtros {
+          display: flex;
+          gap: 10px;
+          margin-bottom: 20px;
+          flex-wrap: wrap;
+        }
+
+        .select {
+          padding: 10px;
+          border-radius: 10px;
+          border: 1px solid #ddd;
+        }
+
+        .tipos {
+          display: flex;
+          gap: 10px;
+          margin-bottom: 20px;
+        }
+
+        .tipo-btn {
+          padding: 10px 16px;
+          border-radius: 10px;
+          border: 1px solid #ddd;
+          background: white;
+          cursor: pointer;
+          font-weight: bold;
+        }
+
+        .ativo {
+          background: #16a34a;
+          color: white;
+          border: none;
+        }
+
+        .grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+          gap: 20px;
+        }
+
+        .card {
+          background: white;
+          border-radius: 14px;
+          padding: 20px;
+          box-shadow: 0 8px 20px rgba(0,0,0,0.06);
+          border: 1px solid #eee;
+          transition: 0.2s;
+        }
+
+        .card:hover {
+          transform: translateY(-3px);
+        }
+
+        .sub {
+          font-size: 13px;
+          color: #777;
+          margin-top: 4px;
+        }
+
+        .divider {
+          height: 1px;
+          background: #eee;
+          margin: 12px 0;
+        }
+
+        .info {
+          font-size: 14px;
+          color: #555;
+        }
+
+        .destaque {
+          font-size: 18px;
+          font-weight: bold;
+          margin-top: 6px;
+        }
+
+        .lucro {
+          color: #166534;
+        }
+
+        .empty {
+          text-align: center;
+          margin-top: 50px;
+          color: #777;
+        }
+      `}</style>
+
+      <div className="container">
+
+        {/* HEADER */}
+        <div className="header">
+
+          <div className="title">
+            🏆 Ranking de Propriedades
           </div>
+
+          <div className="actions">
+            <button className="btn btn-secondary" onClick={()=>router.push("/dashboard")}>
+              ← Voltar
+            </button>
+          </div>
+
         </div>
 
-        <Link href="/dashboard">
-          <button style={btnVoltar}>← Voltar</button>
-        </Link>
+        {/* TIPOS */}
+        <div className="tipos">
 
-      </div>
+          <button className={`tipo-btn ${tipo==="produtividade"?"ativo":""}`} onClick={()=>setTipo("produtividade")}>
+            🌾 Produtividade
+          </button>
 
-      {/* TIPOS */}
-      <div style={tipos}>
+          <button className={`tipo-btn ${tipo==="custo"?"ativo":""}`} onClick={()=>setTipo("custo")}>
+            📉 Menor Custo
+          </button>
 
-        <button style={botaoAtivo("produtividade")} onClick={()=>setTipo("produtividade")}>
-          🌾 Produtividade
-        </button>
+          <button className={`tipo-btn ${tipo==="lucro"?"ativo":""}`} onClick={()=>setTipo("lucro")}>
+            💰 Lucro
+          </button>
 
-        <button style={botaoAtivo("custo")} onClick={()=>setTipo("custo")}>
-          📉 Menor Custo
-        </button>
+        </div>
 
-        <button style={botaoAtivo("lucro")} onClick={()=>setTipo("lucro")}>
-          💰 Lucro
-        </button>
+        {/* FILTROS */}
+        <div className="filtros">
 
-      </div>
+          <select className="select" value={safraFiltro} onChange={(e)=>setSafraFiltro(e.target.value)}>
+            <option value="">Todas Safras</option>
+            {safras.map((s,i)=>(
+              <option key={i} value={s}>{s}</option>
+            ))}
+          </select>
 
-      {/* FILTROS */}
-      <div style={filtros}>
+          <select className="select" value={culturaFiltro} onChange={(e)=>setCulturaFiltro(e.target.value)}>
+            <option value="">Todas Culturas</option>
+            {culturas.map((c,i)=>(
+              <option key={i} value={c}>{c}</option>
+            ))}
+          </select>
 
-        <select value={safraFiltro} onChange={(e)=>setSafraFiltro(e.target.value)} style={input}>
-          <option value="">Todas Safras</option>
-          {safras.map((s,index)=>(
-            <option key={index} value={s}>{s}</option>
-          ))}
-        </select>
+        </div>
 
-        <select value={culturaFiltro} onChange={(e)=>setCulturaFiltro(e.target.value)} style={input}>
-          <option value="">Todas Culturas</option>
-          {culturas.map((c,index)=>(
-            <option key={index} value={c}>{c}</option>
-          ))}
-        </select>
+        {/* GRID */}
+        <div className="grid">
 
-      </div>
+          {ranking.length === 0 && (
+            <div className="empty">
+              Selecione um indicador para gerar o ranking.
+            </div>
+          )}
 
-      {/* GRID */}
-      <div style={grid}>
+          {ranking.map((r,index)=>(
 
-        {ranking.length === 0 && (
-          <div style={empty}>
-            Selecione um indicador acima para gerar o ranking
-          </div>
-        )}
+            <div key={index} className="card">
 
-        {ranking.map((r,index)=>(
+              <h3>
+                {getMedalha(index)} {r.propriedade}
+              </h3>
 
-          <div key={index} style={card}>
+              <div className="divider"></div>
 
-            <div style={topoCard}>
-              <span style={medalha}>{getMedalha(index)}</span>
-              <strong>{r.propriedade}</strong>
+              {tipo === "produtividade" && (
+                <>
+                  <div className="info">Produtividade média</div>
+                  <div className="destaque">
+                    {numero(r.produtividade," sc/ha")}
+                  </div>
+                </>
+              )}
+
+              {tipo === "custo" && (
+                <>
+                  <div className="info">Custo médio</div>
+                  <div className="destaque">
+                    {moeda(r.custo)}/ha
+                  </div>
+                </>
+              )}
+
+              {tipo === "lucro" && (
+                <>
+                  <div className="info">Lucro total</div>
+                  <div className="destaque lucro">
+                    {moeda(r.lucro)}
+                  </div>
+                </>
+              )}
+
             </div>
 
-            {tipo === "produtividade" && (
-              <div style={valorPrincipal}>
-                {r.produtividade} <span style={unidade}>sc/ha</span>
-              </div>
-            )}
+          ))}
 
-            {tipo === "custo" && (
-              <div style={valorPrincipal}>
-                {formatarMoeda(r.custo)} <span style={unidade}>/ha</span>
-              </div>
-            )}
-
-            {tipo === "lucro" && (
-              <div style={{...valorPrincipal, color:"#166534"}}>
-                {formatarMoeda(r.lucro)}
-              </div>
-            )}
-
-          </div>
-
-        ))}
+        </div>
 
       </div>
-
-    </div>
-  )
-}
-
-/* 🎨 ESTILO */
-
-const container: React.CSSProperties = {
-  padding:"40px 50px",
-  background:"#f3f4f6",
-  minHeight:"100vh"
-}
-
-const header: React.CSSProperties = {
-  display:"flex",
-  justifyContent:"space-between",
-  alignItems:"center",
-  marginBottom:30
-}
-
-const titulo: React.CSSProperties = {
-  margin:0,
-  fontSize:26,
-  fontWeight:600,
-  color:"#111827"
-}
-
-const subtitulo: React.CSSProperties = {
-  fontSize:13,
-  color:"#6b7280",
-  marginTop:4
-}
-
-const tipos: React.CSSProperties = {
-  display:"flex",
-  gap:10,
-  marginBottom:20
-}
-
-const btnTipo: React.CSSProperties = {
-  padding:"9px 16px",
-  borderRadius:10,
-  border:"1px solid #d1d5db",
-  background:"#fff",
-  cursor:"pointer",
-  fontSize:13
-}
-
-const filtros: React.CSSProperties = {
-  display:"flex",
-  gap:12,
-  marginBottom:25
-}
-
-const grid: React.CSSProperties = {
-  display:"grid",
-  gridTemplateColumns:"repeat(auto-fill, minmax(260px, 1fr))",
-  gap:20
-}
-
-const card: React.CSSProperties = {
-  background:"#fff",
-  borderRadius:14,
-  padding:18,
-  boxShadow:"0 3px 8px rgba(0,0,0,0.05)",
-  display:"flex",
-  flexDirection:"column",
-  gap:10
-}
-
-const topoCard: React.CSSProperties = {
-  display:"flex",
-  alignItems:"center",
-  gap:8,
-  fontSize:14
-}
-
-const medalha: React.CSSProperties = {
-  fontSize:18
-}
-
-const valorPrincipal: React.CSSProperties = {
-  fontSize:26,
-  fontWeight:700,
-  color:"#1f2937"
-}
-
-const unidade: React.CSSProperties = {
-  fontSize:14,
-  fontWeight:400,
-  color:"#6b7280"
-}
-
-const empty: React.CSSProperties = {
-  color:"#6b7280",
-  fontSize:14
-}
-
-const input: React.CSSProperties = {
-  padding:"9px",
-  borderRadius:8,
-  border:"1px solid #d1d5db"
-}
-
-const btnVoltar: React.CSSProperties = {
-  padding:"7px 12px",
-  background:"#e5e7eb",
-  border:"none",
-  borderRadius:8,
-  cursor:"pointer",
-  fontSize:13
+    </>
+  );
 }
