@@ -2,9 +2,11 @@
 
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
-import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 export default function VisitasPage(){
+
+  const router = useRouter();
 
   const [visitas,setVisitas] = useState<any[]>([])
   const [propriedades,setPropriedades] = useState<string[]>([])
@@ -109,262 +111,268 @@ export default function VisitasPage(){
 
   return(
 
-    <div style={container}>
+    <>
+      <style>{`
+        body {
+          margin: 0;
+          font-family: Arial, sans-serif;
+          background: #f4f6f9;
+        }
 
-      {/* HEADER */}
-      <div style={header}>
+        .container {
+          padding: 30px;
+          max-width: 1200px;
+          margin: 0 auto;
+        }
 
-        <div style={{display:"flex", alignItems:"center", gap:10}}>
-          <div style={{fontSize:22}}>📋</div>
+        .header {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          margin-bottom: 30px;
+        }
 
-          <h1 style={titulo}>
-            Visitas
-          </h1>
-        </div>
+        .title {
+          font-size: 24px;
+          font-weight: bold;
+          display: flex;
+          align-items: center;
+          gap: 10px;
+        }
 
-        <div style={{display:"flex", gap:8}}>
-          <Link href="/dashboard">
-            <button style={btnVoltar}>← Voltar</button>
-          </Link>
+        .actions {
+          display: flex;
+          gap: 10px;
+        }
 
-          <Link href="/visitas/nova-visita">
-            <button style={btnPrimary}>+ Nova Visita</button>
-          </Link>
-        </div>
+        .btn {
+          padding: 10px 16px;
+          border: none;
+          border-radius: 10px;
+          cursor: pointer;
+          font-weight: bold;
+        }
 
-      </div>
+        .btn-primary {
+          background: #2c5364;
+          color: white;
+        }
 
-      {/* FILTROS */}
-      <div style={filtros}>
-        <select value={filtroMes} onChange={e=>setFiltroMes(e.target.value)} style={input}>
-          <option value="">Todos os meses</option>
-          <option value="2026-01">Jan</option>
-          <option value="2026-02">Fev</option>
-          <option value="2026-03">Mar</option>
-        </select>
+        .btn-secondary {
+          background: #e4e7eb;
+        }
 
-        <select value={filtroPropriedade} onChange={e=>setFiltroPropriedade(e.target.value)} style={input}>
-          <option value="">Todas propriedades</option>
-          {propriedades.map((p,i)=>(
-            <option key={i} value={p}>{p}</option>
-          ))}
-        </select>
-      </div>
+        .filtros {
+          display: flex;
+          gap: 10px;
+          margin-bottom: 20px;
+          flex-wrap: wrap;
+        }
 
-      {/* GRID */}
-      <div style={grid}>
+        .select {
+          padding: 10px;
+          border-radius: 10px;
+          border: 1px solid #ddd;
+        }
 
-        {visitasFiltradas.map((v,index)=>(
+        .grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+          gap: 20px;
+        }
 
-          <div key={v.id || index} style={card}>
+        .card {
+          background: white;
+          border-radius: 14px;
+          padding: 20px;
+          box-shadow: 0 8px 20px rgba(0,0,0,0.06);
+          border: 1px solid #eee;
+          transition: 0.2s;
+          position: relative;
+        }
 
-            <strong>{v.propriedade}</strong>
+        .card:hover {
+          transform: translateY(-3px);
+        }
 
-            <div style={linha}>
-              <b>Data:</b> {formatarData(v.data_visita)}
-            </div>
+        .card h3 {
+          margin-bottom: 10px;
+          font-size: 16px;
+        }
 
-            <div style={linha}>
-              <b>Motivo:</b>{" "}
-              {editandoId === v.id ? (
-                <input
-                  value={formEdit.motivo || ""}
-                  onChange={e=>setFormEdit({...formEdit, motivo:e.target.value})}
-                  style={inputFull}
-                />
-              ) : (
-                v.motivo || "-"
-              )}
-            </div>
+        .info {
+          font-size: 14px;
+          color: #555;
+          margin-bottom: 6px;
+        }
 
-            <button onClick={()=>toggleCard(index)} style={btnToggle}>
-              {abertos.includes(index) ? "Ocultar" : "Ver mais"}
+        .divider {
+          height: 1px;
+          background: #eee;
+          margin: 10px 0;
+        }
+
+        .toggle {
+          margin-top: 10px;
+          font-size: 13px;
+          cursor: pointer;
+          color: #2c5364;
+          font-weight: bold;
+        }
+
+        .box {
+          margin-top: 10px;
+          padding: 10px;
+          background: #f9fafb;
+          border-radius: 8px;
+          border: 1px solid #eee;
+        }
+
+        .input {
+          width: 100%;
+          padding: 6px;
+          border-radius: 6px;
+          border: 1px solid #ccc;
+          margin-top: 4px;
+        }
+
+        .acoes {
+          position: absolute;
+          bottom: 10px;
+          right: 10px;
+          display: flex;
+          gap: 6px;
+        }
+
+        .icon-btn {
+          background: transparent;
+          border: none;
+          cursor: pointer;
+          opacity: 0.6;
+        }
+
+        .link {
+          font-size: 13px;
+          color: #2563eb;
+          text-decoration: none;
+        }
+      `}</style>
+
+      <div className="container">
+
+        <div className="header">
+          <div className="title">📋 Visitas</div>
+
+          <div className="actions">
+            <button className="btn btn-secondary" onClick={()=>router.push("/dashboard")}>
+              ← Voltar
             </button>
 
-            {abertos.includes(index) && (
-              <div style={{marginTop:10}}>
+            <button className="btn btn-primary" onClick={()=>router.push("/visitas/nova-visita")}>
+              + Nova Visita
+            </button>
+          </div>
+        </div>
 
-                <div style={linha}>
-                  <b>Msg Produtor:</b>{" "}
-                  {editandoId === v.id ? (
-                    <input
-                      value={formEdit.mensagem_produtor || ""}
-                      onChange={e=>setFormEdit({...formEdit, mensagem_produtor:e.target.value})}
-                      style={inputFull}
-                    />
-                  ) : (
-                    v.mensagem_produtor || "-"
-                  )}
-                </div>
+        <div className="filtros">
+          <select className="select" value={filtroMes} onChange={e=>setFiltroMes(e.target.value)}>
+            <option value="">Todos os meses</option>
+            <option value="2026-01">Jan</option>
+            <option value="2026-02">Fev</option>
+            <option value="2026-03">Mar</option>
+          </select>
 
-                <div style={linha}>
-                  <b>Obs:</b>{" "}
-                  {editandoId === v.id ? (
-                    <textarea
-                      value={formEdit.observacao || ""}
-                      onChange={e=>setFormEdit({...formEdit, observacao:e.target.value})}
-                      style={textarea}
-                    />
-                  ) : (
-                    v.observacao || "-"
-                  )}
-                </div>
+          <select className="select" value={filtroPropriedade} onChange={e=>setFiltroPropriedade(e.target.value)}>
+            <option value="">Todas propriedades</option>
+            {propriedades.map((p,i)=>(
+              <option key={i} value={p}>{p}</option>
+            ))}
+          </select>
+        </div>
 
-                {editandoId === v.id && (
-                  <button onClick={salvarEdicao} style={btnPrimary}>
-                    Salvar
-                  </button>
-                )}
+        <div className="grid">
 
+          {visitasFiltradas.map((v,index)=>(
+
+            <div key={v.id || index} className="card">
+
+              <h3>{v.propriedade}</h3>
+
+              <div className="divider"></div>
+
+              <div className="info">
+                <strong>Data:</strong> {formatarData(v.data_visita)}
               </div>
-            )}
 
-            {v.midia_link && (
-              <div style={{marginTop:12}}>
-                <a href={v.midia_link} target="_blank" style={link}>
-                  🔗 Abrir mídia
-                </a>
+              <div className="info">
+                <strong>Motivo:</strong>{" "}
+                {editandoId === v.id ? (
+                  <input
+                    className="input"
+                    value={formEdit.motivo || ""}
+                    onChange={e=>setFormEdit({...formEdit, motivo:e.target.value})}
+                  />
+                ) : v.motivo || "-"}
               </div>
-            )}
 
-            {/* AÇÕES */}
-            <div style={acoesCard}>
-              <button onClick={()=>iniciarEdicao(v)} style={btnIcon}>
-                ✏️
-              </button>
+              <div className="toggle" onClick={()=>toggleCard(index)}>
+                {abertos.includes(index) ? "▲ Ocultar detalhes" : "▼ Ver detalhes"}
+              </div>
 
-              <button onClick={()=>excluirVisita(v.id)} style={btnIcon}>
-                🗑️
-              </button>
+              {abertos.includes(index) && (
+                <div className="box">
+
+                  <div className="info">
+                    <strong>Mensagem:</strong>{" "}
+                    {editandoId === v.id ? (
+                      <input
+                        className="input"
+                        value={formEdit.mensagem_produtor || ""}
+                        onChange={e=>setFormEdit({...formEdit, mensagem_produtor:e.target.value})}
+                      />
+                    ) : v.mensagem_produtor || "-"}
+                  </div>
+
+                  <div className="info">
+                    <strong>Observação:</strong>{" "}
+                    {editandoId === v.id ? (
+                      <textarea
+                        className="input"
+                        value={formEdit.observacao || ""}
+                        onChange={e=>setFormEdit({...formEdit, observacao:e.target.value})}
+                      />
+                    ) : v.observacao || "-"}
+                  </div>
+
+                  {editandoId === v.id && (
+                    <button className="btn btn-primary" onClick={salvarEdicao}>
+                      Salvar
+                    </button>
+                  )}
+
+                </div>
+              )}
+
+              {v.midia_link && (
+                <div style={{marginTop:10}}>
+                  <a href={v.midia_link} target="_blank" className="link">
+                    🔗 Abrir mídia
+                  </a>
+                </div>
+              )}
+
+              <div className="acoes">
+                <button className="icon-btn" onClick={()=>iniciarEdicao(v)}>✏️</button>
+                <button className="icon-btn" onClick={()=>excluirVisita(v.id)}>🗑️</button>
+              </div>
+
             </div>
 
-          </div>
+          ))}
 
-        ))}
+        </div>
 
       </div>
-
-    </div>
+    </>
   )
-}
-
-/* 🎨 ESTILOS TIPADOS */
-
-const container: React.CSSProperties = {
-  padding:"40px 50px",
-  background:"#f3f4f6",
-  minHeight:"100vh"
-}
-
-const header: React.CSSProperties = {
-  display:"flex",
-  justifyContent:"space-between",
-  alignItems:"center",
-  marginBottom:30
-}
-
-const titulo: React.CSSProperties = {
-  margin:0,
-  fontSize:24,
-  fontWeight:600,
-  color:"#1f2937"
-}
-
-const filtros: React.CSSProperties = {
-  display:"flex",
-  gap:12,
-  marginBottom:25
-}
-
-const grid: React.CSSProperties = {
-  display:"grid",
-  gridTemplateColumns:"repeat(auto-fill, minmax(300px, 1fr))",
-  gap:20
-}
-
-const card: React.CSSProperties = {
-  background:"#fff",
-  borderRadius:14,
-  padding:16,
-  boxShadow:"0 2px 6px rgba(0,0,0,0.05)",
-  position:"relative"
-}
-
-const linha: React.CSSProperties = {
-  fontSize:13,
-  color:"#374151",
-  marginBottom:6
-}
-
-const input: React.CSSProperties = {
-  padding:"9px",
-  borderRadius:8,
-  border:"1px solid #d1d5db"
-}
-
-const inputFull: React.CSSProperties = {
-  width:"100%",
-  padding:"6px",
-  borderRadius:6,
-  border:"1px solid #ccc",
-  marginTop:4
-}
-
-const textarea: React.CSSProperties = {
-  width:"100%",
-  padding:"6px",
-  borderRadius:6,
-  border:"1px solid #ccc",
-  marginTop:4
-}
-
-const btnPrimary: React.CSSProperties = {
-  padding:"7px 12px",
-  background:"#2f4f5f",
-  color:"#fff",
-  border:"none",
-  borderRadius:8,
-  cursor:"pointer",
-  marginTop:10
-}
-
-const btnVoltar: React.CSSProperties = {
-  padding:"7px 12px",
-  background:"#e5e7eb",
-  border:"none",
-  borderRadius:8,
-  cursor:"pointer",
-  fontSize:13
-}
-
-const btnToggle: React.CSSProperties = {
-  marginTop:10,
-  padding:"5px 9px",
-  fontSize:12,
-  background:"#f9fafb",
-  border:"1px solid #e5e7eb",
-  borderRadius:8,
-  cursor:"pointer"
-}
-
-const link: React.CSSProperties = {
-  fontSize:13,
-  color:"#2563eb",
-  textDecoration:"none"
-}
-
-const acoesCard: React.CSSProperties = {
-  position:"absolute",
-  bottom:10,
-  right:10,
-  display:"flex",
-  gap:6
-}
-
-const btnIcon: React.CSSProperties = {
-  background:"transparent",
-  border:"none",
-  cursor:"pointer",
-  fontSize:13,
-  opacity:0.6
 }
