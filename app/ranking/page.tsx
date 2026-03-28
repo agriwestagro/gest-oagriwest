@@ -95,7 +95,7 @@ export default function RankingPage() {
 
       if(tipo === "lucro") return b.lucro - a.lucro
       if(tipo === "produtividade") return b.produtividade - a.produtividade
-      if(tipo === "custo") return a.custo - b.custo // menor melhor
+      if(tipo === "custo") return a.custo - b.custo
 
       return 0
     })
@@ -119,7 +119,7 @@ export default function RankingPage() {
 
   function botaoAtivo(valor:string){
     return tipo === valor
-      ? {...btnTipo, background:"#16a34a", color:"#fff"}
+      ? {...btnTipo, background:"#16a34a", color:"#fff", border:"none"}
       : btnTipo
   }
 
@@ -130,12 +130,11 @@ export default function RankingPage() {
       {/* HEADER */}
       <div style={header}>
 
-        <div style={{display:"flex", alignItems:"center", gap:10}}>
-          <div style={{fontSize:22}}>🏆</div>
-
-          <h1 style={titulo}>
-            Ranking de Propriedades
-          </h1>
+        <div>
+          <h1 style={titulo}>Ranking de Propriedades</h1>
+          <div style={subtitulo}>
+            Compare desempenho entre áreas (visão gerencial)
+          </div>
         </div>
 
         <Link href="/dashboard">
@@ -144,7 +143,7 @@ export default function RankingPage() {
 
       </div>
 
-      {/* SELEÇÃO TIPO */}
+      {/* TIPOS */}
       <div style={tipos}>
 
         <button style={botaoAtivo("produtividade")} onClick={()=>setTipo("produtividade")}>
@@ -184,7 +183,7 @@ export default function RankingPage() {
       <div style={grid}>
 
         {ranking.length === 0 && (
-          <div style={{color:"#6b7280"}}>
+          <div style={empty}>
             Selecione um indicador acima para gerar o ranking
           </div>
         )}
@@ -193,25 +192,26 @@ export default function RankingPage() {
 
           <div key={index} style={card}>
 
-            <strong style={{fontSize:16}}>
-              {getMedalha(index)} {r.propriedade}
-            </strong>
+            <div style={topoCard}>
+              <span style={medalha}>{getMedalha(index)}</span>
+              <strong>{r.propriedade}</strong>
+            </div>
 
             {tipo === "produtividade" && (
-              <div style={linha}>
-                🌾 {r.produtividade} sc/ha
+              <div style={valorPrincipal}>
+                {r.produtividade} <span style={unidade}>sc/ha</span>
               </div>
             )}
 
             {tipo === "custo" && (
-              <div style={linha}>
-                📉 {formatarMoeda(r.custo)}/ha
+              <div style={valorPrincipal}>
+                {formatarMoeda(r.custo)} <span style={unidade}>/ha</span>
               </div>
             )}
 
             {tipo === "lucro" && (
-              <div style={{...linha, fontWeight:600, color:"#166534"}}>
-                💰 {formatarMoeda(r.lucro)}
+              <div style={{...valorPrincipal, color:"#166534"}}>
+                {formatarMoeda(r.lucro)}
               </div>
             )}
 
@@ -242,9 +242,15 @@ const header: React.CSSProperties = {
 
 const titulo: React.CSSProperties = {
   margin:0,
-  fontSize:24,
+  fontSize:26,
   fontWeight:600,
-  color:"#1f2937"
+  color:"#111827"
+}
+
+const subtitulo: React.CSSProperties = {
+  fontSize:13,
+  color:"#6b7280",
+  marginTop:4
 }
 
 const tipos: React.CSSProperties = {
@@ -254,7 +260,7 @@ const tipos: React.CSSProperties = {
 }
 
 const btnTipo: React.CSSProperties = {
-  padding:"8px 14px",
+  padding:"9px 16px",
   borderRadius:10,
   border:"1px solid #d1d5db",
   background:"#fff",
@@ -270,21 +276,46 @@ const filtros: React.CSSProperties = {
 
 const grid: React.CSSProperties = {
   display:"grid",
-  gridTemplateColumns:"repeat(auto-fill, minmax(280px, 1fr))",
+  gridTemplateColumns:"repeat(auto-fill, minmax(260px, 1fr))",
   gap:20
 }
 
 const card: React.CSSProperties = {
   background:"#fff",
   borderRadius:14,
-  padding:16,
-  boxShadow:"0 2px 6px rgba(0,0,0,0.05)"
+  padding:18,
+  boxShadow:"0 3px 8px rgba(0,0,0,0.05)",
+  display:"flex",
+  flexDirection:"column",
+  gap:10
 }
 
-const linha: React.CSSProperties = {
-  fontSize:13,
-  color:"#374151",
-  marginTop:6
+const topoCard: React.CSSProperties = {
+  display:"flex",
+  alignItems:"center",
+  gap:8,
+  fontSize:14
+}
+
+const medalha: React.CSSProperties = {
+  fontSize:18
+}
+
+const valorPrincipal: React.CSSProperties = {
+  fontSize:26,
+  fontWeight:700,
+  color:"#1f2937"
+}
+
+const unidade: React.CSSProperties = {
+  fontSize:14,
+  fontWeight:400,
+  color:"#6b7280"
+}
+
+const empty: React.CSSProperties = {
+  color:"#6b7280",
+  fontSize:14
 }
 
 const input: React.CSSProperties = {
