@@ -9,7 +9,7 @@ export default function RankingPage() {
   const [dados,setDados] = useState<any[]>([])
   const [ranking,setRanking] = useState<any[]>([])
 
-  const [tipo,setTipo] = useState("") // 🔥 começa vazio
+  const [tipo,setTipo] = useState("")
   const [safraFiltro,setSafraFiltro] = useState("")
   const [culturaFiltro,setCulturaFiltro] = useState("")
 
@@ -21,8 +21,11 @@ export default function RankingPage() {
   },[])
 
   useEffect(()=>{
-    if(tipo) gerarRanking() // 🔥 só roda se escolher
-    else setRanking([])
+    if(tipo){
+      gerarRanking()
+    } else {
+      setRanking([])
+    }
   },[dados,tipo,safraFiltro,culturaFiltro])
 
   async function carregarDados(){
@@ -58,10 +61,9 @@ export default function RankingPage() {
       const nome = s.propriedade
 
       const produtividade = Number(s.produtividade) || 0
-      const custo_ha = Number(s.custo_ha) || 0
       const area = Number(s.area) || 0
-
-      const custoTotal = custo_ha * area
+      const custoHa = Number(s.custo_ha) || 0
+      const custoTotal = custoHa * area
       const receita = s.receita || (produtividade * area * (Number(s.preco_venda) || 0))
       const lucro = s.lucro ?? (receita - custoTotal)
 
@@ -69,14 +71,14 @@ export default function RankingPage() {
         mapa[nome] = {
           propriedade: nome,
           produtividade: 0,
-          custo_ha: 0,
+          custo: 0,
           lucro: 0,
           count: 0
         }
       }
 
       mapa[nome].produtividade += produtividade
-      mapa[nome].custo_ha += custo_ha
+      mapa[nome].custo += custoHa
       mapa[nome].lucro += lucro
       mapa[nome].count += 1
 
@@ -84,22 +86,18 @@ export default function RankingPage() {
 
     const lista = Object.values(mapa).map((item:any)=>({
       propriedade: item.propriedade,
-      produtividade: item.produtividade / item.count,
-      custo_ha: item.custo_ha / item.count,
+      produtividade: Math.round(item.produtividade / item.count),
+      custo: item.custo / item.count,
       lucro: item.lucro
     }))
 
     lista.sort((a:any,b:any)=>{
 
-      if(tipo === "produtividade"){
-        return b.produtividade - a.produtividade
-      }
+      if(tipo === "lucro") return b.lucro - a.lucro
+      if(tipo === "produtividade") return b.produtividade - a.produtividade
+      if(tipo === "custo") return a.custo - b.custo // menor melhor
 
-      if(tipo === "custo"){
-        return a.custo_ha - b.custo_ha // 🔥 menor é melhor
-      }
-
-      return b.lucro - a.lucro
+      return 0
     })
 
     setRanking(lista)
@@ -117,6 +115,12 @@ export default function RankingPage() {
     if(index === 1) return "🥈"
     if(index === 2) return "🥉"
     return `${index + 1}º`
+  }
+
+  function botaoAtivo(valor:string){
+    return tipo === valor
+      ? {...btnTipo, background:"#16a34a", color:"#fff"}
+      : btnTipo
   }
 
   return(
@@ -140,15 +144,25 @@ export default function RankingPage() {
 
       </div>
 
+      {/* SELEÇÃO TIPO */}
+      <div style={tipos}>
+
+        <button style={botaoAtivo("produtividade")} onClick={()=>setTipo("produtividade")}>
+          🌾 Produtividade
+        </button>
+
+        <button style={botaoAtivo("custo")} onClick={()=>setTipo("custo")}>
+          📉 Menor Custo
+        </button>
+
+        <button style={botaoAtivo("lucro")} onClick={()=>setTipo("lucro")}>
+          💰 Lucro
+        </button>
+
+      </div>
+
       {/* FILTROS */}
       <div style={filtros}>
-
-        <select value={tipo} onChange={(e)=>setTipo(e.target.value)} style={input}>
-          <option value="">Selecionar métrica</option>
-          <option value="produtividade">Produtividade</option>
-          <option value="custo">Custo/ha (menor melhor)</option>
-          <option value="lucro">Lucro</option>
-        </select>
 
         <select value={safraFiltro} onChange={(e)=>setSafraFiltro(e.target.value)} style={input}>
           <option value="">Todas Safras</option>
@@ -166,15 +180,14 @@ export default function RankingPage() {
 
       </div>
 
-      {/* ESTADO VAZIO */}
-      {!tipo && (
-        <div style={{color:"#6b7280", fontSize:14}}>
-          Selecione uma métrica para visualizar o ranking
-        </div>
-      )}
-
       {/* GRID */}
       <div style={grid}>
+
+        {ranking.length === 0 && (
+          <div style={{color:"#6b7280"}}>
+            Selecione um indicador acima para gerar o ranking
+          </div>
+        )}
 
         {ranking.map((r,index)=>(
 
@@ -186,22 +199,18 @@ export default function RankingPage() {
 
             {tipo === "produtividade" && (
               <div style={linha}>
-                🌾 {r.produtividade.toFixed(1)} sc/ha
+                🌾 {r.produtividade} sc/ha
               </div>
             )}
 
             {tipo === "custo" && (
               <div style={linha}>
-                💸 {formatarMoeda(r.custo_ha)} /ha
+                📉 {formatarMoeda(r.custo)}/ha
               </div>
             )}
 
             {tipo === "lucro" && (
-              <div style={{
-                ...linha,
-                fontWeight:600,
-                color:"#166534"
-              }}>
+              <div style={{...linha, fontWeight:600, color:"#166534"}}>
                 💰 {formatarMoeda(r.lucro)}
               </div>
             )}
@@ -216,4 +225,79 @@ export default function RankingPage() {
   )
 }
 
-/* estilos mantidos */
+/* 🎨 ESTILO */
+
+const container: React.CSSProperties = {
+  padding:"40px 50px",
+  background:"#f3f4f6",
+  minHeight:"100vh"
+}
+
+const header: React.CSSProperties = {
+  display:"flex",
+  justifyContent:"space-between",
+  alignItems:"center",
+  marginBottom:30
+}
+
+const titulo: React.CSSProperties = {
+  margin:0,
+  fontSize:24,
+  fontWeight:600,
+  color:"#1f2937"
+}
+
+const tipos: React.CSSProperties = {
+  display:"flex",
+  gap:10,
+  marginBottom:20
+}
+
+const btnTipo: React.CSSProperties = {
+  padding:"8px 14px",
+  borderRadius:10,
+  border:"1px solid #d1d5db",
+  background:"#fff",
+  cursor:"pointer",
+  fontSize:13
+}
+
+const filtros: React.CSSProperties = {
+  display:"flex",
+  gap:12,
+  marginBottom:25
+}
+
+const grid: React.CSSProperties = {
+  display:"grid",
+  gridTemplateColumns:"repeat(auto-fill, minmax(280px, 1fr))",
+  gap:20
+}
+
+const card: React.CSSProperties = {
+  background:"#fff",
+  borderRadius:14,
+  padding:16,
+  boxShadow:"0 2px 6px rgba(0,0,0,0.05)"
+}
+
+const linha: React.CSSProperties = {
+  fontSize:13,
+  color:"#374151",
+  marginTop:6
+}
+
+const input: React.CSSProperties = {
+  padding:"9px",
+  borderRadius:8,
+  border:"1px solid #d1d5db"
+}
+
+const btnVoltar: React.CSSProperties = {
+  padding:"7px 12px",
+  background:"#e5e7eb",
+  border:"none",
+  borderRadius:8,
+  cursor:"pointer",
+  fontSize:13
+}
