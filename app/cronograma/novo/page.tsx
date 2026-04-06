@@ -43,13 +43,23 @@ export default function NovoCronograma() {
 
     const { error } = await supabase
       .from("cronograma_semanal")
-      .insert([form]);
+      .insert([{
+        titulo: form.titulo,
+        motivo: form.motivo || null,
+        descricao: form.descricao || null,
+        propriedade: form.propriedade,
+        data_limite: form.data_limite,
+        data: form.data_limite, // 👈 resolve o NOT NULL
+        status: "pendente"
+      }]);
 
     if (error) {
-      alert("Erro ao salvar");
+      console.log("ERRO COMPLETO:", error);
+      alert(error.message);
       return;
     }
 
+    alert("Salvo com sucesso");
     router.push("/cronograma");
   }
 
@@ -71,18 +81,10 @@ export default function NovoCronograma() {
           box-shadow: 0 8px 20px rgba(0,0,0,0.08);
         }
 
-        .header {
-          margin-bottom: 25px;
-        }
-
         .title {
           font-size: 22px;
           font-weight: bold;
-        }
-
-        .subtitle {
-          font-size: 13px;
-          color: #666;
+          margin-bottom: 20px;
         }
 
         .form {
@@ -101,7 +103,6 @@ export default function NovoCronograma() {
 
         .textarea {
           min-height: 100px;
-          resize: vertical;
         }
 
         .row {
@@ -139,35 +140,28 @@ export default function NovoCronograma() {
 
       <div className="container">
 
-        {/* HEADER */}
-        <div className="header">
-          <div className="title">➕ Novo Cronograma</div>
-          <div className="subtitle">
-            Registre atividades da semana com foco em execução
-          </div>
-        </div>
+        <div className="title">➕ Novo Cronograma</div>
 
-        {/* FORM */}
         <div className="form">
 
           <input
             className="input"
             name="titulo"
-            placeholder="Título (ex: Aplicação fungicida soja)"
+            placeholder="Título"
             onChange={handleChange}
           />
 
           <input
             className="input"
             name="motivo"
-            placeholder="Motivo (ex: pressão de doença / planejamento)"
+            placeholder="Motivo"
             onChange={handleChange}
           />
 
           <textarea
             className="textarea"
             name="descricao"
-            placeholder="Descrição detalhada da atividade"
+            placeholder="Descrição"
             onChange={handleChange}
           />
 
@@ -195,7 +189,6 @@ export default function NovoCronograma() {
 
         </div>
 
-        {/* AÇÕES */}
         <div className="actions">
 
           <button
