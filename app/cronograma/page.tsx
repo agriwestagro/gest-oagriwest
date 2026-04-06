@@ -4,265 +4,98 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { useRouter } from "next/navigation";
 
-export default function CronogramaSemana() {
+export default function Cronograma() {
 
   const router = useRouter();
-
   const [dados, setDados] = useState<any[]>([]);
-  const [propriedades, setPropriedades] = useState<string[]>([]);
-  const [filtro, setFiltro] = useState("");
+  const [aberto, setAberto] = useState<string | null>(null);
 
   useEffect(() => {
-    carregarDados();
+    carregar();
   }, []);
 
-  async function carregarDados() {
-
-    const hoje = new Date();
-
-    const inicioSemana = new Date(hoje);
-    inicioSemana.setDate(hoje.getDate() - hoje.getDay());
-
-    const fimSemana = new Date(inicioSemana);
-    fimSemana.setDate(inicioSemana.getDate() + 6);
-
-    const { data, error } = await supabase
+  async function carregar() {
+    const { data } = await supabase
       .from("cronograma_semanal")
       .select("*")
-      .gte("data", inicioSemana.toISOString())
-      .lte("data", fimSemana.toISOString())
-      .order("data", { ascending: true });
+      .order("data_limite", { ascending: true });
 
-    if (error) {
-      console.error(error);
-      alert("Erro ao carregar cronograma");
-      return;
-    }
-
-    const lista = data || [];
-    setDados(lista);
-
-    const props = [...new Set(lista.map(d => d.propriedade))];
-    setPropriedades(props);
+    setDados(data || []);
   }
 
-  const filtrado = filtro
-    ? dados.filter(d => d.propriedade === filtro)
-    : dados;
+  async function toggleRealizado(id: string, atual: boolean) {
 
-  async function concluir(id: string) {
-    const { error } = await supabase
+    await supabase
       .from("cronograma_semanal")
-      .update({ status: "feito" })
+      .update({ realizado: !atual })
       .eq("id", id);
 
-    if (error) {
-      alert("Erro ao atualizar");
-      return;
-    }
-
-    carregarDados();
+    carregar();
   }
 
   return (
 
-    <>
-      <style>{`
-        body {
-          margin: 0;
-          font-family: Arial, sans-serif;
-          background: #f4f6f9;
-        }
+    <div style={{ padding: 30 }}>
 
-        .container {
-          padding: 30px;
-          max-width: 1200px;
-          margin: 0 auto;
-        }
+      <h1>Cronograma</h1>
 
-        .header {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          margin-bottom: 30px;
-        }
+      <button onClick={()=>router.push("/cronograma/novo")}>
+        + Novo
+      </button>
 
-        .title {
-          font-size: 24px;
-          font-weight: bold;
-          display: flex;
-          align-items: center;
-          gap: 10px;
-        }
+      <div style={{ marginTop: 20 }}>
 
-        .actions {
-          display: flex;
-          gap: 10px;
-        }
+        {dados.map((item) => (
 
-        .btn {
-          padding: 10px 16px;
-          border: none;
-          border-radius: 10px;
-          cursor: pointer;
-          font-weight: bold;
-        }
+          <div key={item.id} style={{
+            border: "1px solid #ddd",
+            borderRadius: 10,
+            marginBottom: 10,
+            padding: 15,
+            background: "#fff"
+          }}>
 
-        .btn-secondary {
-          background: #e4e7eb;
-        }
+            {/* LINHA PRINCIPAL */}
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                cursor: "pointer"
+              }}
+              onClick={() => setAberto(aberto === item.id ? null : item.id)}
+            >
 
-        .filtros {
-          display: flex;
-          gap: 10px;
-          margin-bottom: 20px;
-          flex-wrap: wrap;
-        }
-
-        .select {
-          padding: 10px;
-          border-radius: 10px;
-          border: 1px solid #ddd;
-        }
-
-        .grid {
-          display: grid;
-          grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-          gap: 20px;
-        }
-
-        .card {
-          background: white;
-          border-radius: 14px;
-          padding: 20px;
-          box-shadow: 0 8px 20px rgba(0,0,0,0.06);
-          border: 1px solid #eee;
-        }
-
-        .card h3 {
-          margin: 0;
-          font-size: 16px;
-        }
-
-        .sub {
-          font-size: 13px;
-          color: #777;
-          margin-top: 4px;
-        }
-
-        .divider {
-          height: 1px;
-          background: #eee;
-          margin: 12px 0;
-        }
-
-        .info {
-          font-size: 14px;
-          color: #555;
-          margin-bottom: 6px;
-        }
-
-        .status {
-          font-weight: bold;
-        }
-
-        .feito {
-          color: #166534;
-        }
-
-        .pendente {
-          color: #b45309;
-        }
-
-        .btn-done {
-          margin-top: 10px;
-          padding: 8px;
-          border-radius: 8px;
-          border: none;
-          background: #22c55e;
-          color: white;
-          cursor: pointer;
-        }
-      `}</style>
-
-      <div className="container">
-
-        {/* HEADER */}
-        <div className="header">
-
-          <div className="title">
-            📅 Cronograma Semanal
-          </div>
-
-          <div className="actions">
-            <button className="btn btn-secondary" onClick={()=>router.push("/dashboard")}>
-              ← Voltar
-            </button>
-          </div>
-
-        </div>
-
-        {/* FILTRO */}
-        <div className="filtros">
-          <select
-            className="select"
-            value={filtro}
-            onChange={(e)=>setFiltro(e.target.value)}
-          >
-            <option value="">Todas propriedades</option>
-            {propriedades.map((p,i)=>(
-              <option key={i} value={p}>{p}</option>
-            ))}
-          </select>
-        </div>
-
-        {/* GRID */}
-        <div className="grid">
-
-          {filtrado.length === 0 && (
-            <div>Nenhuma atividade na semana</div>
-          )}
-
-          {filtrado.map((item) => (
-
-            <div key={item.id} className="card">
-
-              <h3>{item.propriedade}</h3>
-
-              <div className="sub">
-                {new Date(item.data).toLocaleDateString("pt-BR")}
+              <div>
+                <strong>{item.titulo}</strong> <br/>
+                {item.propriedade} • {item.data_limite}
               </div>
 
-              <div className="divider"></div>
-
-              <div className="info">
-                <strong>Atividade:</strong> {item.atividade}
-              </div>
-
-              <div className="info">
-                <strong>Responsável:</strong> {item.responsavel}
-              </div>
-
-              <div className={`status ${item.status === "feito" ? "feito" : "pendente"}`}>
-                {item.status}
-              </div>
-
-              {item.status !== "feito" && (
-                <button
-                  className="btn-done"
-                  onClick={() => concluir(item.id)}
-                >
-                  Concluir
-                </button>
-              )}
+              <input
+                type="checkbox"
+                checked={item.realizado}
+                onChange={() => toggleRealizado(item.id, item.realizado)}
+              />
 
             </div>
 
-          ))}
+            {/* DETALHE */}
+            {aberto === item.id && (
 
-        </div>
+              <div style={{ marginTop: 10 }}>
+
+                <p><strong>Motivo:</strong> {item.motivo}</p>
+                <p><strong>Descrição:</strong> {item.descricao}</p>
+
+              </div>
+
+            )}
+
+          </div>
+
+        ))}
 
       </div>
-    </>
+
+    </div>
   );
 }
