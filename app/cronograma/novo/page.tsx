@@ -9,10 +9,11 @@ export default function NovoCronograma() {
   const [propriedades, setPropriedades] = useState<string[]>([]);
 
   const [form, setForm] = useState({
-    data: "",
+    titulo: "",
+    motivo: "",
+    descricao: "",
     propriedade: "",
-    atividade: "",
-    responsavel: ""
+    data_limite: ""
   });
 
   useEffect(() => {
@@ -20,10 +21,7 @@ export default function NovoCronograma() {
   }, []);
 
   async function carregarPropriedades() {
-    const { data } = await supabase
-      .from("propriedades")
-      .select("nome");
-
+    const { data } = await supabase.from("propriedades").select("nome");
     setPropriedades(data?.map(p => p.nome) || []);
   }
 
@@ -49,13 +47,14 @@ export default function NovoCronograma() {
   }
 
   return (
-
     <div style={{ padding: 40 }}>
 
       <h1>Novo Cronograma</h1>
 
-      <input type="date" name="data" onChange={handleChange} />
-      
+      <input name="titulo" placeholder="Título" onChange={handleChange} />
+      <input name="motivo" placeholder="Motivo" onChange={handleChange} />
+      <textarea name="descricao" placeholder="Descrição" onChange={handleChange} />
+
       <select name="propriedade" onChange={handleChange}>
         <option value="">Selecione</option>
         {propriedades.map((p,i)=>(
@@ -63,13 +62,11 @@ export default function NovoCronograma() {
         ))}
       </select>
 
-      <input name="atividade" placeholder="Atividade" onChange={handleChange} />
-      <input name="responsavel" placeholder="Responsável" onChange={handleChange} />
+      <input type="date" name="data_limite" onChange={handleChange} />
 
       <button onClick={salvar}>Salvar</button>
 
       <br /><br />
-
       <Link href="/cronograma">Voltar</Link>
 
     </div>
