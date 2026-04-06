@@ -52,7 +52,7 @@ export default function Dashboard() {
             justifyContent: "center",
             gap: "25px",
             flexWrap: "wrap",
-            maxWidth: "850px",
+            maxWidth: "900px",
             margin: "0 auto"
           }}
         >
@@ -92,11 +92,18 @@ export default function Dashboard() {
             </div>
           </Link>
 
-          {/* NOVO BLOCO */}
           <Link href="/analises">
             <div style={cardStyle}>
               🛰️
               <h3>Análises Agronômicas</h3>
+            </div>
+          </Link>
+
+          {/* NOVO MÓDULO */}
+          <Link href="/cronograma">
+            <div style={cardStyle}>
+              📅
+              <h3>Cronograma Semanal</h3>
             </div>
           </Link>
 
