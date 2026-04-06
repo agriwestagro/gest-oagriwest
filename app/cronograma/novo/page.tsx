@@ -1,9 +1,6 @@
 "use client";
 
 import { useState, useEffect } from "react";
-"use client";
-
-import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
 import Link from "next/link";
 
@@ -60,7 +57,7 @@ export default function NovoCronograma() {
       <input type="date" name="data" onChange={handleChange} />
       
       <select name="propriedade" onChange={handleChange}>
-        <option>Selecione</option>
+        <option value="">Selecione</option>
         {propriedades.map((p,i)=>(
           <option key={i}>{p}</option>
         ))}
@@ -70,6 +67,8 @@ export default function NovoCronograma() {
       <input name="responsavel" placeholder="Responsável" onChange={handleChange} />
 
       <button onClick={salvar}>Salvar</button>
+
+      <br /><br />
 
       <Link href="/cronograma">Voltar</Link>
 
