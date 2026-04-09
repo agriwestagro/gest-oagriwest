@@ -69,35 +69,32 @@ export default function NovaAnalise(){
   return(
 
     <div style={{
-      padding:"40px 50px",
+      padding:"40px 20px",
       background:"#f3f4f6",
-      minHeight:"100vh"
+      minHeight:"100vh",
+      display:"flex",
+      flexDirection:"column",
+      alignItems:"center"
     }}>
 
       {/* HEADER */}
       <div style={{
+        width:"100%",
+        maxWidth:600,
         display:"flex",
         justifyContent:"space-between",
         alignItems:"center",
         marginBottom:25
       }}>
 
-        <div style={{
-          display:"flex",
-          alignItems:"center",
-          gap:10
+        <h1 style={{
+          margin:0,
+          fontSize:24,
+          fontWeight:600,
+          color:"#1f2937"
         }}>
-          <div style={{fontSize:22}}>🛰️</div>
-
-          <h1 style={{
-            margin:0,
-            fontSize:24,
-            fontWeight:600,
-            color:"#1f2937"
-          }}>
-            Nova Análise
-          </h1>
-        </div>
+          🛰️ Nova Análise
+        </h1>
 
         <button onClick={()=>router.push("/analises")} style={btnVoltar}>
           ← Voltar
@@ -105,10 +102,8 @@ export default function NovaAnalise(){
 
       </div>
 
-      {/* FORM */}
+      {/* FORM CENTRALIZADO */}
       <div style={card}>
-
-        <h3 style={{marginBottom:15}}>Preencher Análise</h3>
 
         <select
           name="propriedade"
@@ -154,23 +149,31 @@ export default function NovaAnalise(){
           style={inputFull}
         />
 
-        {/* DATAS */}
-        <div style={{display:"flex", gap:10}}>
-          <input
-            type="date"
-            name="data_coleta"
-            value={form.data_coleta}
-            onChange={handleChange}
-            style={inputFull}
-          />
+        {/* DATAS COM LABEL */}
+        <div style={{display:"flex", gap:10, marginBottom:10}}>
 
-          <input
-            type="date"
-            name="data_laudo"
-            value={form.data_laudo}
-            onChange={handleChange}
-            style={inputFull}
-          />
+          <div style={{flex:1}}>
+            <label style={label}>Data de Coleta</label>
+            <input
+              type="date"
+              name="data_coleta"
+              value={form.data_coleta}
+              onChange={handleChange}
+              style={inputFull}
+            />
+          </div>
+
+          <div style={{flex:1}}>
+            <label style={label}>Data do Laudo</label>
+            <input
+              type="date"
+              name="data_laudo"
+              value={form.data_laudo}
+              onChange={handleChange}
+              style={inputFull}
+            />
+          </div>
+
         </div>
 
         <textarea
@@ -195,10 +198,10 @@ export default function NovaAnalise(){
 
 const card = {
   background:"#fff",
-  padding:20,
-  borderRadius:12,
-  boxShadow:"0 2px 6px rgba(0,0,0,0.05)",
-  marginBottom:20,
+  padding:25,
+  borderRadius:14,
+  boxShadow:"0 8px 20px rgba(0,0,0,0.05)",
+  width:"100%",
   maxWidth:600
 }
 
@@ -217,6 +220,14 @@ const textarea = {
   width:"100%",
   height:100,
   marginBottom:10
+}
+
+const label = {
+  fontSize:13,
+  fontWeight:600,
+  marginBottom:4,
+  display:"block",
+  color:"#374151"
 }
 
 const btn = {
