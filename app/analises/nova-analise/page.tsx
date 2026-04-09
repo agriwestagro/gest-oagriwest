@@ -9,9 +9,9 @@ export default function NovaAnalise(){
   const router = useRouter();
 
   const [propriedades,setPropriedades] = useState<string[]>([])
-  const [propriedadeSelecionada,setPropriedadeSelecionada] = useState("")
 
   const [form,setForm] = useState({
+    propriedade:"",
     link:"",
     motivo:"",
     decisao:"",
@@ -26,69 +26,213 @@ export default function NovaAnalise(){
   },[])
 
   async function carregarPropriedades(){
-    const { data } = await supabase.from("propriedades").select("nome")
+    const { data, error } = await supabase
+      .from("propriedades")
+      .select("nome")
+
+    if(error){
+      alert("Erro ao carregar propriedades")
+      return
+    }
+
     setPropriedades(data?.map(p=>p.nome) || [])
+  }
+
+  function handleChange(e:any){
+    setForm({
+      ...form,
+      [e.target.name]: e.target.value
+    })
   }
 
   async function salvarAnalise(){
 
-    if(!propriedadeSelecionada){
+    if(!form.propriedade){
       alert("Selecione a propriedade")
       return
     }
 
     const { error } = await supabase
       .from("analises")
-      .insert([{
-        ...form,
-        propriedade: propriedadeSelecionada
-      }])
+      .insert([form])
 
     if(error){
-      alert("Erro ao salvar")
+      alert("Erro ao salvar análise")
       return
     }
 
-    router.push("/analises") // volta pro histórico
+    alert("Análise salva com sucesso")
+
+    router.push("/analises")
   }
 
   return(
 
-    <div style={{ padding:40 }}>
+    <div style={{
+      padding:"40px 50px",
+      background:"#f3f4f6",
+      minHeight:"100vh"
+    }}>
 
-      <h2>Nova Análise</h2>
+      {/* HEADER */}
+      <div style={{
+        display:"flex",
+        justifyContent:"space-between",
+        alignItems:"center",
+        marginBottom:25
+      }}>
 
-      <select
-        value={propriedadeSelecionada}
-        onChange={e=>setPropriedadeSelecionada(e.target.value)}
-        style={inputFull}
-      >
-        <option value="">Selecione a propriedade</option>
-        {propriedades.map((p,i)=>(
-          <option key={i} value={p}>{p}</option>
-        ))}
-      </select>
+        <div style={{
+          display:"flex",
+          alignItems:"center",
+          gap:10
+        }}>
+          <div style={{fontSize:22}}>🛰️</div>
 
-      <input placeholder="Link" onChange={e=>setForm({...form,link:e.target.value})} style={inputFull}/>
-      <input placeholder="Motivo" onChange={e=>setForm({...form,motivo:e.target.value})} style={inputFull}/>
-      <input placeholder="Período" onChange={e=>setForm({...form,periodo_cultura:e.target.value})} style={inputFull}/>
-      <input placeholder="Responsável" onChange={e=>setForm({...form,responsavel:e.target.value})} style={inputFull}/>
+          <h1 style={{
+            margin:0,
+            fontSize:24,
+            fontWeight:600,
+            color:"#1f2937"
+          }}>
+            Nova Análise
+          </h1>
+        </div>
 
-      <div style={{display:"flex", gap:10}}>
-        <input type="date" onChange={e=>setForm({...form,data_coleta:e.target.value})} style={inputFull}/>
-        <input type="date" onChange={e=>setForm({...form,data_laudo:e.target.value})} style={inputFull}/>
+        <button onClick={()=>router.push("/analises")} style={btnVoltar}>
+          ← Voltar
+        </button>
+
       </div>
 
-      <textarea placeholder="Decisão" onChange={e=>setForm({...form,decisao:e.target.value})} style={textarea}/>
+      {/* FORM */}
+      <div style={card}>
 
-      <button onClick={salvarAnalise} style={btn}>
-        Salvar
-      </button>
+        <h3 style={{marginBottom:15}}>Preencher Análise</h3>
+
+        <select
+          name="propriedade"
+          value={form.propriedade}
+          onChange={handleChange}
+          style={inputFull}
+        >
+          <option value="">Selecione a propriedade</option>
+          {propriedades.map((p,i)=>(
+            <option key={i} value={p}>{p}</option>
+          ))}
+        </select>
+
+        <input
+          name="link"
+          placeholder="Link da análise (opcional)"
+          value={form.link}
+          onChange={handleChange}
+          style={inputFull}
+        />
+
+        <input
+          name="motivo"
+          placeholder="Motivo da análise"
+          value={form.motivo}
+          onChange={handleChange}
+          style={inputFull}
+        />
+
+        <input
+          name="periodo_cultura"
+          placeholder="Período da cultura (ex: V4, R1...)"
+          value={form.periodo_cultura}
+          onChange={handleChange}
+          style={inputFull}
+        />
+
+        <input
+          name="responsavel"
+          placeholder="Responsável"
+          value={form.responsavel}
+          onChange={handleChange}
+          style={inputFull}
+        />
+
+        {/* DATAS */}
+        <div style={{display:"flex", gap:10}}>
+          <input
+            type="date"
+            name="data_coleta"
+            value={form.data_coleta}
+            onChange={handleChange}
+            style={inputFull}
+          />
+
+          <input
+            type="date"
+            name="data_laudo"
+            value={form.data_laudo}
+            onChange={handleChange}
+            style={inputFull}
+          />
+        </div>
+
+        <textarea
+          name="decisao"
+          placeholder="Decisão tomada"
+          value={form.decisao}
+          onChange={handleChange}
+          style={textarea}
+        />
+
+        <button onClick={salvarAnalise} style={btn}>
+          Salvar Análise
+        </button>
+
+      </div>
 
     </div>
   )
 }
 
-const inputFull = { width:"100%", padding:10, marginBottom:10 }
-const textarea = { width:"100%", height:80, marginBottom:10 }
-const btn = { padding:"10px 16px", background:"#2f4f5f", color:"#fff", border:"none", borderRadius:10 }
+/* 🎨 ESTILO */
+
+const card = {
+  background:"#fff",
+  padding:20,
+  borderRadius:12,
+  boxShadow:"0 2px 6px rgba(0,0,0,0.05)",
+  marginBottom:20,
+  maxWidth:600
+}
+
+const inputFull = {
+  padding:"10px",
+  borderRadius:8,
+  border:"1px solid #ccc",
+  width:"100%",
+  marginBottom:10
+}
+
+const textarea = {
+  padding:"10px",
+  borderRadius:8,
+  border:"1px solid #ccc",
+  width:"100%",
+  height:100,
+  marginBottom:10
+}
+
+const btn = {
+  padding:"10px 16px",
+  background:"#2f4f5f",
+  color:"#fff",
+  border:"none",
+  borderRadius:10,
+  cursor:"pointer",
+  fontWeight:500
+}
+
+const btnVoltar = {
+  padding:"8px 14px",
+  background:"#e5e7eb",
+  border:"none",
+  borderRadius:10,
+  cursor:"pointer"
+}
