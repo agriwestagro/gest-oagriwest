@@ -358,7 +358,6 @@ export default function Cronograma() {
 
         .btn-main:hover {
           opacity: 0.92;
-          transform: translateY(-1px);
         }
 
         .btn-light {
@@ -422,9 +421,6 @@ export default function Cronograma() {
 
         .item:hover {
           transform: translateY(-2px);
-          box-shadow:
-            0 10px 24px rgba(15, 23, 42, 0.08),
-            0 2px 6px rgba(15, 23, 42, 0.05);
         }
 
         .linha {
@@ -451,7 +447,6 @@ export default function Cronograma() {
         .titulo-topo strong {
           font-size: 17px;
           font-weight: 700;
-          letter-spacing: -0.2px;
         }
 
         .realizado-tag {
@@ -462,7 +457,6 @@ export default function Cronograma() {
           padding: 4px 8px;
           border-radius: 20px;
           text-transform: uppercase;
-          letter-spacing: 0.5px;
         }
 
         .alerta-badge {
@@ -473,7 +467,6 @@ export default function Cronograma() {
           padding: 4px 8px;
           border-radius: 20px;
           text-transform: uppercase;
-          letter-spacing: 0.5px;
         }
 
         .sub {
@@ -491,8 +484,6 @@ export default function Cronograma() {
           font-size: 11px;
           color: #9ca3af;
           cursor: pointer;
-          transition: 0.2s;
-          user-select: none;
           font-weight: 500;
         }
 
@@ -512,11 +503,6 @@ export default function Cronograma() {
           font-size: 12px;
           color: #374151;
           cursor: pointer;
-          transition: 0.2s;
-        }
-
-        .btn-obs:hover {
-          background: #f3f4f6;
         }
 
         .check-btn {
@@ -529,22 +515,16 @@ export default function Cronograma() {
           align-items: center;
           justify-content: center;
           font-size: 16px;
-          transition: 0.2s;
         }
 
         .check-on {
           background: #16a34a;
           color: white;
-          box-shadow: 0 4px 10px rgba(22,163,74,0.25);
         }
 
         .check-off {
           background: #eef2f7;
           color: #9ca3af;
-        }
-
-        .check-btn:hover {
-          transform: scale(1.06);
         }
 
         .detalhe {
@@ -580,13 +560,6 @@ export default function Cronograma() {
           box-sizing: border-box;
           font-family: Inter, Arial, sans-serif;
           background: #fafafa;
-          transition: 0.2s;
-        }
-
-        .obs-box:focus {
-          outline: none;
-          border-color: #94a3b8;
-          background: white;
         }
 
         .mini-actions {
@@ -604,11 +577,6 @@ export default function Cronograma() {
           font-size: 12px;
           font-weight: 600;
           cursor: pointer;
-          transition: 0.2s;
-        }
-
-        .btn-save-small:hover {
-          opacity: 0.92;
         }
 
         .btn-cancel-small {
@@ -620,11 +588,6 @@ export default function Cronograma() {
           font-size: 12px;
           font-weight: 600;
           cursor: pointer;
-          transition: 0.2s;
-        }
-
-        .btn-cancel-small:hover {
-          background: #e5e7eb;
         }
 
       `}</style>
@@ -705,12 +668,6 @@ export default function Cronograma() {
 
         <div className="lista">
 
-          {dadosFiltrados.length === 0 && (
-            <div>
-              Nenhuma atividade encontrada.
-            </div>
-          )}
-
           {dadosFiltrados.map((item) => (
 
             <div
@@ -725,7 +682,60 @@ export default function Cronograma() {
               }`}
             >
 
-              {/* restante permanece igual */}
+              <div
+                className="linha"
+                onClick={() =>
+                  setAberto(
+                    aberto === item.id
+                      ? null
+                      : item.id
+                  )
+                }
+              >
+
+                <div className="titulo-area">
+
+                  <div className="titulo-topo">
+
+                    <strong>
+                      {item.titulo}
+                    </strong>
+
+                    {item.realizado && (
+                      <div className="realizado-tag">
+                        realizado
+                      </div>
+                    )}
+
+                    {verificarAlerta(
+                      item.data_fim,
+                      item.realizado
+                    ) && (
+                      <div className="alerta-badge">
+                        prazo próximo
+                      </div>
+                    )}
+
+                  </div>
+
+                  <div className="sub">
+
+                    {(item.produtor ||
+                      item.propriedade)}{" "}
+                    • Início:{" "}
+                    {formatarData(
+                      item.data_inicio
+                    )}{" "}
+                    • Fim:{" "}
+                    {formatarData(
+                      item.data_fim
+                    )}
+
+                  </div>
+
+                </div>
+
+              </div>
 
             </div>
 
