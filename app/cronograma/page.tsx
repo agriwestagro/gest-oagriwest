@@ -14,6 +14,9 @@ export default function Cronograma() {
   const [filtroMes, setFiltroMes] = useState("");
   const [filtroProdutor, setFiltroProdutor] = useState("");
 
+  const [salvandoObs, setSalvandoObs] =
+    useState<string | null>(null);
+
   useEffect(() => {
     carregar();
   }, []);
@@ -23,7 +26,9 @@ export default function Cronograma() {
     const { data, error } = await supabase
       .from("cronograma_semanal")
       .select("*")
-      .order("data_inicio", { ascending: true });
+      .order("data_inicio", {
+        ascending: true,
+      });
 
     if (error) {
       console.log(error);
@@ -33,13 +38,18 @@ export default function Cronograma() {
     setDados(data || []);
   }
 
-  async function toggleRealizado(id: any, atual: boolean) {
+  async function toggleRealizado(
+    id: any,
+    atual: boolean
+  ) {
 
     const { error } = await supabase
       .from("cronograma_semanal")
       .update({
         realizado: !atual,
-        status: !atual ? "realizado" : "pendente",
+        status: !atual
+          ? "realizado"
+          : "pendente",
       })
       .eq("id", id);
 
@@ -77,13 +87,23 @@ export default function Cronograma() {
       .eq("id", id);
 
     if (error) {
-      console.log("ERRO AO EXCLUIR:", error);
-      alert("Erro ao excluir: " + error.message);
+      console.log(
+        "ERRO AO EXCLUIR:",
+        error
+      );
+
+      alert(
+        "Erro ao excluir: " +
+          error.message
+      );
+
       return;
     }
 
     setDados((prev) =>
-      prev.filter((item) => item.id !== id)
+      prev.filter(
+        (item) => item.id !== id
+      )
     );
 
     if (aberto === id) {
@@ -91,11 +111,38 @@ export default function Cronograma() {
     }
   }
 
+  async function salvarObservacoes(
+    id: any,
+    observacoes: string
+  ) {
+
+    setSalvandoObs(id);
+
+    const { error } = await supabase
+      .from("cronograma_semanal")
+      .update({
+        observacoes,
+      })
+      .eq("id", id);
+
+    if (error) {
+      console.log(error);
+
+      alert(
+        "Erro ao salvar observações"
+      );
+    }
+
+    setSalvandoObs(null);
+  }
+
   function formatarData(data: string) {
 
     if (!data) return "";
 
-    const partes = data.substring(0, 10).split("-");
+    const partes = data
+      .substring(0, 10)
+      .split("-");
 
     return `${partes[2]}/${partes[1]}/${partes[0]}`;
   }
@@ -105,7 +152,11 @@ export default function Cronograma() {
     return [
       ...new Set(
         dados
-          .map((d) => d.produtor || d.propriedade)
+          .map(
+            (d) =>
+              d.produtor ||
+              d.propriedade
+          )
           .filter(Boolean)
       ),
     ];
@@ -121,25 +172,36 @@ export default function Cronograma() {
       if (filtroMes) {
 
         const anoMesItem =
-          item.data_inicio?.substring(0, 7);
+          item.data_inicio?.substring(
+            0,
+            7
+          );
 
-        matchMes = anoMesItem === filtroMes;
+        matchMes =
+          anoMesItem === filtroMes;
       }
 
       const produtorItem =
-        item.produtor || item.propriedade;
+        item.produtor ||
+        item.propriedade;
 
       const matchProdutor =
         !filtroProdutor ||
-        produtorItem === filtroProdutor;
+        produtorItem ===
+          filtroProdutor;
 
-      return matchMes && matchProdutor;
+      return (
+        matchMes && matchProdutor
+      );
     });
 
-  }, [dados, filtroMes, filtroProdutor]);
+  }, [
+    dados,
+    filtroMes,
+    filtroProdutor,
+  ]);
 
   return (
-
     <>
       <style>{`
 
@@ -288,37 +350,37 @@ export default function Cronograma() {
         .acoes-item {
           display: flex;
           align-items: center;
-          gap: 8px;
+          gap: 10px;
         }
 
-        .btn-edit {
-          background: transparent;
+        .link-action {
+          font-size: 11px;
           color: #777;
-          border: 1px solid #ddd;
-          padding: 5px 10px;
-          font-size: 12px;
-          border-radius: 8px;
           cursor: pointer;
           transition: 0.2s;
+          user-select: none;
         }
 
-        .btn-edit:hover {
-          background: #f3f4f6;
+        .link-action:hover {
+          color: #111;
         }
 
-        .btn-delete {
-          background: transparent;
+        .link-delete:hover {
           color: #b91c1c;
-          border: 1px solid #f1caca;
-          padding: 5px 10px;
+        }
+
+        .btn-obs {
+          background: #f5f7fa;
+          border: 1px solid #e5e7eb;
+          border-radius: 10px;
+          padding: 7px 12px;
           font-size: 12px;
-          border-radius: 8px;
           cursor: pointer;
           transition: 0.2s;
         }
 
-        .btn-delete:hover {
-          background: #fef2f2;
+        .btn-obs:hover {
+          background: #edf2f7;
         }
 
         .check-btn {
@@ -348,6 +410,19 @@ export default function Cronograma() {
           transform: scale(1.05);
         }
 
+        .obs-box {
+          width: 100%;
+          min-height: 120px;
+          margin-top: 10px;
+          border-radius: 12px;
+          border: 1px solid #ddd;
+          padding: 12px;
+          font-size: 14px;
+          resize: vertical;
+          box-sizing: border-box;
+          font-family: Arial;
+        }
+
       `}</style>
 
       <div className="container">
@@ -362,14 +437,20 @@ export default function Cronograma() {
 
             <button
               className="btn btn-primary"
-              onClick={() => router.push("/cronograma/novo")}
+              onClick={() =>
+                router.push(
+                  "/cronograma/novo"
+                )
+              }
             >
               + Novo
             </button>
 
             <button
               className="btn btn-secondary"
-              onClick={() => router.push("/dashboard")}
+              onClick={() =>
+                router.push("/dashboard")
+              }
             >
               ← Voltar
             </button>
@@ -385,7 +466,9 @@ export default function Cronograma() {
             className="filtro"
             value={filtroMes}
             onChange={(e) =>
-              setFiltroMes(e.target.value)
+              setFiltroMes(
+                e.target.value
+              )
             }
           />
 
@@ -393,7 +476,9 @@ export default function Cronograma() {
             className="filtro"
             value={filtroProdutor}
             onChange={(e) =>
-              setFiltroProdutor(e.target.value)
+              setFiltroProdutor(
+                e.target.value
+              )
             }
           >
 
@@ -401,16 +486,18 @@ export default function Cronograma() {
               Todos produtores
             </option>
 
-            {produtores.map((produtor) => (
+            {produtores.map(
+              (produtor) => (
 
-              <option
-                key={produtor}
-                value={produtor}
-              >
-                {produtor}
-              </option>
+                <option
+                  key={produtor}
+                  value={produtor}
+                >
+                  {produtor}
+                </option>
 
-            ))}
+              )
+            )}
 
           </select>
 
@@ -418,148 +505,230 @@ export default function Cronograma() {
 
         <div className="lista">
 
-          {dadosFiltrados.length === 0 && (
+          {dadosFiltrados.length ===
+            0 && (
             <div>
-              Nenhuma atividade encontrada.
+              Nenhuma atividade
+              encontrada.
             </div>
           )}
 
-          {dadosFiltrados.map((item) => (
-
-            <div
-              key={item.id}
-              className="item"
-            >
+          {dadosFiltrados.map(
+            (item) => (
 
               <div
-                className="linha"
-                onClick={() =>
-                  setAberto(
-                    aberto === item.id
-                      ? null
-                      : item.id
-                  )
-                }
+                key={item.id}
+                className="item"
               >
 
-                <div className="titulo-area">
+                <div
+                  className="linha"
+                  onClick={() =>
+                    setAberto(
+                      aberto ===
+                        item.id
+                        ? null
+                        : item.id
+                    )
+                  }
+                >
 
-                  <div className="titulo-topo">
+                  <div className="titulo-area">
 
-                    <strong>
-                      {item.titulo}
-                    </strong>
+                    <div className="titulo-topo">
 
-                    {item.realizado && (
-                      <div className="realizado-tag">
-                        realizado
-                      </div>
-                    )}
+                      <strong>
+                        {
+                          item.titulo
+                        }
+                      </strong>
+
+                      {item.realizado && (
+                        <div className="realizado-tag">
+                          realizado
+                        </div>
+                      )}
+
+                    </div>
+
+                    <div className="sub">
+
+                      {(item.produtor ||
+                        item.propriedade)}{" "}
+                      • Início:{" "}
+                      {formatarData(
+                        item.data_inicio
+                      )}{" "}
+                      • Fim:{" "}
+                      {formatarData(
+                        item.data_fim
+                      )}
+
+                    </div>
 
                   </div>
 
-                  <div className="sub">
+                  <div className="acoes-item">
 
-                    {(item.produtor ||
-                      item.propriedade)}{" "}
-                    •
-                    Início:{" "}
-                    {formatarData(
-                      item.data_inicio
-                    )}{" "}
-                    •
-                    Fim:{" "}
-                    {formatarData(
-                      item.data_fim
-                    )}
+                    <div
+                      className="link-action"
+                      onClick={(
+                        e
+                      ) => {
+                        e.stopPropagation();
 
-                  </div>
+                        router.push(
+                          `/cronograma/editar/${item.id}`
+                        );
+                      }}
+                    >
+                      editar
+                    </div>
 
-                </div>
+                    <div
+                      className="link-action link-delete"
+                      onClick={(
+                        e
+                      ) => {
+                        e.stopPropagation();
 
-                <div className="acoes-item">
+                        excluir(
+                          item.id
+                        );
+                      }}
+                    >
+                      excluir
+                    </div>
 
-                  <button
-                    className="btn-edit"
-                    onClick={(e) => {
-                      e.stopPropagation();
+                    <button
+                      className="btn-obs"
+                      onClick={(
+                        e
+                      ) => {
+                        e.stopPropagation();
 
-                      router.push(
-                        `/cronograma/editar/${item.id}`
-                      );
-                    }}
-                  >
-                    editar
-                  </button>
+                        setAberto(
+                          aberto ===
+                            item.id
+                            ? null
+                            : item.id
+                        );
+                      }}
+                    >
+                      Observações
+                    </button>
 
-                  <button
-                    className="btn-delete"
-                    onClick={(e) => {
-                      e.stopPropagation();
-
-                      excluir(item.id);
-                    }}
-                  >
-                    excluir
-                  </button>
-
-                  <button
-                    className={`check-btn ${
-                      item.realizado
-                        ? "check-on"
-                        : "check-off"
-                    }`}
-                    onClick={(e) => {
-                      e.stopPropagation();
-
-                      toggleRealizado(
-                        item.id,
+                    <button
+                      className={`check-btn ${
                         item.realizado
-                      );
-                    }}
-                  >
-                    {item.realizado
-                      ? "✓"
-                      : "○"}
-                  </button>
+                          ? "check-on"
+                          : "check-off"
+                      }`}
+                      onClick={(
+                        e
+                      ) => {
+                        e.stopPropagation();
+
+                        toggleRealizado(
+                          item.id,
+                          item.realizado
+                        );
+                      }}
+                    >
+                      {item.realizado
+                        ? "✓"
+                        : "○"}
+                    </button>
+
+                  </div>
 
                 </div>
+
+                {aberto ===
+                  item.id && (
+
+                  <div className="detalhe">
+
+                    <p>
+                      <strong>
+                        Motivo:
+                      </strong>{" "}
+                      {item.motivo ||
+                        "-"}
+                    </p>
+
+                    <p>
+                      <strong>
+                        Descrição:
+                      </strong>{" "}
+                      {item.descricao ||
+                        "-"}
+                    </p>
+
+                    <p
+                      className={
+                        item.realizado
+                          ? "status-ok"
+                          : "status-pendente"
+                      }
+                    >
+                      {item.realizado
+                        ? "✓ Atividade realizada"
+                        : "⏳ Atividade pendente"}
+                    </p>
+
+                    <div
+                      style={{
+                        marginTop: 20,
+                      }}
+                    >
+
+                      <strong>
+                        Observações
+                      </strong>
+
+                      <textarea
+                        className="obs-box"
+                        defaultValue={
+                          item.observacoes ||
+                          ""
+                        }
+                        placeholder="Adicionar observações..."
+                        onBlur={(
+                          e
+                        ) =>
+                          salvarObservacoes(
+                            item.id,
+                            e.target
+                              .value
+                          )
+                        }
+                      />
+
+                      {salvandoObs ===
+                        item.id && (
+                        <div
+                          style={{
+                            marginTop: 8,
+                            fontSize: 12,
+                            color:
+                              "#666",
+                          }}
+                        >
+                          salvando...
+                        </div>
+                      )}
+
+                    </div>
+
+                  </div>
+
+                )}
 
               </div>
 
-              {aberto === item.id && (
-
-                <div className="detalhe">
-
-                  <p>
-                    <strong>Motivo:</strong>{" "}
-                    {item.motivo || "-"}
-                  </p>
-
-                  <p>
-                    <strong>Descrição:</strong>{" "}
-                    {item.descricao || "-"}
-                  </p>
-
-                  <p
-                    className={
-                      item.realizado
-                        ? "status-ok"
-                        : "status-pendente"
-                    }
-                  >
-                    {item.realizado
-                      ? "✓ Atividade realizada"
-                      : "⏳ Atividade pendente"}
-                  </p>
-
-                </div>
-
-              )}
-
-            </div>
-
-          ))}
+            )
+          )}
 
         </div>
 
