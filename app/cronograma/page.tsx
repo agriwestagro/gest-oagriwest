@@ -568,8 +568,7 @@ export default function Cronograma() {
           {dadosFiltrados.length ===
             0 && (
             <div>
-              Nenhuma atividade
-              encontrada.
+              Nenhuma atividade encontrada.
             </div>
           )}
 
@@ -709,8 +708,7 @@ export default function Cronograma() {
 
                   <div className="detalhe">
 
-                    {editando ===
-                    item.id ? (
+                    {editando === item.id ? (
 
                       <>
 
@@ -723,18 +721,13 @@ export default function Cronograma() {
                             formEdit.titulo
                           }
                           placeholder="Título"
-                          onChange={(
-                            e
-                          ) =>
-                            setFormEdit(
-                              {
-                                ...formEdit,
-                                titulo:
-                                  e
-                                    .target
-                                    .value,
-                              }
-                            )
+                          onChange={(e) =>
+                            setFormEdit({
+                              ...formEdit,
+                              titulo:
+                                e.target
+                                  .value,
+                            })
                           }
                         />
 
@@ -748,18 +741,13 @@ export default function Cronograma() {
                             formEdit.motivo
                           }
                           placeholder="Motivo"
-                          onChange={(
-                            e
-                          ) =>
-                            setFormEdit(
-                              {
-                                ...formEdit,
-                                motivo:
-                                  e
-                                    .target
-                                    .value,
-                              }
-                            )
+                          onChange={(e) =>
+                            setFormEdit({
+                              ...formEdit,
+                              motivo:
+                                e.target
+                                  .value,
+                            })
                           }
                         />
 
@@ -769,18 +757,13 @@ export default function Cronograma() {
                             formEdit.descricao
                           }
                           placeholder="Descrição"
-                          onChange={(
-                            e
-                          ) =>
-                            setFormEdit(
-                              {
-                                ...formEdit,
-                                descricao:
-                                  e
-                                    .target
-                                    .value,
-                              }
-                            )
+                          onChange={(e) =>
+                            setFormEdit({
+                              ...formEdit,
+                              descricao:
+                                e.target
+                                  .value,
+                            })
                           }
                         />
 
@@ -802,18 +785,13 @@ export default function Cronograma() {
                             value={
                               formEdit.data_inicio
                             }
-                            onChange={(
-                              e
-                            ) =>
-                              setFormEdit(
-                                {
-                                  ...formEdit,
-                                  data_inicio:
-                                    e
-                                      .target
-                                      .value,
-                                }
-                              )
+                            onChange={(e) =>
+                              setFormEdit({
+                                ...formEdit,
+                                data_inicio:
+                                  e.target
+                                    .value,
+                              })
                             }
                           />
 
@@ -826,18 +804,13 @@ export default function Cronograma() {
                             value={
                               formEdit.data_fim
                             }
-                            onChange={(
-                              e
-                            ) =>
-                              setFormEdit(
-                                {
-                                  ...formEdit,
-                                  data_fim:
-                                    e
-                                      .target
-                                      .value,
-                                }
-                              )
+                            onChange={(e) =>
+                              setFormEdit({
+                                ...formEdit,
+                                data_fim:
+                                  e.target
+                                    .value,
+                              })
                             }
                           />
 
@@ -849,18 +822,13 @@ export default function Cronograma() {
                             formEdit.observacoes
                           }
                           placeholder="Observações"
-                          onChange={(
-                            e
-                          ) =>
-                            setFormEdit(
-                              {
-                                ...formEdit,
-                                observacoes:
-                                  e
-                                    .target
-                                    .value,
-                              }
-                            )
+                          onChange={(e) =>
+                            setFormEdit({
+                              ...formEdit,
+                              observacoes:
+                                e.target
+                                  .value,
+                            })
                           }
                         />
 
@@ -937,26 +905,120 @@ export default function Cronograma() {
                           }}
                         >
 
-                          <strong>
-                            Observações
-                          </strong>
+                          <div
+                            style={{
+                              display:
+                                "flex",
+                              justifyContent:
+                                "space-between",
+                              alignItems:
+                                "center",
+                              marginBottom: 10,
+                            }}
+                          >
+
+                            <strong>
+                              Observações
+                            </strong>
+
+                            <div
+                              className="link-action"
+                              onClick={() => {
+
+                                setEditando(
+                                  item.id
+                                );
+
+                                setFormEdit({
+                                  titulo:
+                                    item.titulo ||
+                                    "",
+                                  motivo:
+                                    item.motivo ||
+                                    "",
+                                  descricao:
+                                    item.descricao ||
+                                    "",
+                                  data_inicio:
+                                    item.data_inicio ||
+                                    "",
+                                  data_fim:
+                                    item.data_fim ||
+                                    "",
+                                  observacoes:
+                                    item.observacoes ||
+                                    "",
+                                });
+                              }}
+                            >
+                              editar observações
+                            </div>
+
+                          </div>
+
+                          <textarea
+                            className="obs-box"
+                            value={
+                              editando ===
+                              item.id
+                                ? formEdit.observacoes
+                                : item.observacoes ||
+                                  ""
+                            }
+                            placeholder="Adicionar observações..."
+                            onChange={(e) => {
+
+                              const novoTexto =
+                                e.target
+                                  .value;
+
+                              setDados(
+                                (
+                                  prev
+                                ) =>
+                                  prev.map(
+                                    (
+                                      d
+                                    ) =>
+                                      d.id ===
+                                      item.id
+                                        ? {
+                                            ...d,
+                                            observacoes:
+                                              novoTexto,
+                                          }
+                                        : d
+                                  )
+                              );
+
+                              setFormEdit({
+                                ...formEdit,
+                                observacoes:
+                                  novoTexto,
+                              });
+                            }}
+                          />
 
                           <div
                             style={{
                               marginTop: 10,
-                              background:
-                                "#f8fafc",
-                              border:
-                                "1px solid #e5e7eb",
-                              borderRadius: 12,
-                              padding: 15,
-                              whiteSpace:
-                                "pre-wrap",
-                              minHeight: 80,
+                              display:
+                                "flex",
+                              gap: 10,
                             }}
                           >
-                            {item.observacoes ||
-                              "Nenhuma observação adicionada"}
+
+                            <button
+                              className="btn btn-primary"
+                              onClick={() =>
+                                salvarEdicao(
+                                  item.id
+                                )
+                              }
+                            >
+                              Salvar Observações
+                            </button>
+
                           </div>
 
                         </div>
