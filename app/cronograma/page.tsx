@@ -96,12 +96,7 @@ export default function Cronograma() {
 
     if (error) {
       console.log(error);
-
-      alert(
-        "Erro ao excluir: " +
-          error.message
-      );
-
+      alert("Erro ao excluir");
       return;
     }
 
@@ -110,10 +105,6 @@ export default function Cronograma() {
         (item) => item.id !== id
       )
     );
-
-    if (aberto === id) {
-      setAberto(null);
-    }
   }
 
   function abrirEdicao(item: any) {
@@ -180,7 +171,7 @@ export default function Cronograma() {
     alert("Alterações salvas");
   }
 
-  async function salvarSomenteObservacoes(
+  async function salvarObservacoes(
     id: any,
     observacoes: string
   ) {
@@ -194,11 +185,9 @@ export default function Cronograma() {
 
     if (error) {
       console.log(error);
-
       alert(
         "Erro ao salvar observações"
       );
-
       return;
     }
 
@@ -270,24 +259,23 @@ export default function Cronograma() {
 
           if (filtroMes) {
 
-            const anoMesItem =
+            const anoMes =
               item.data_inicio?.substring(
                 0,
                 7
               );
 
             matchMes =
-              anoMesItem ===
-              filtroMes;
+              anoMes === filtroMes;
           }
 
-          const produtorItem =
+          const produtor =
             item.produtor ||
             item.propriedade;
 
           const matchProdutor =
             !filtroProdutor ||
-            produtorItem ===
+            produtor ===
               filtroProdutor;
 
           return (
@@ -309,14 +297,14 @@ export default function Cronograma() {
 
         body {
           margin: 0;
-          font-family: Inter, Arial, sans-serif;
           background: #f5f7fb;
+          font-family: Inter, Arial;
           color: #111827;
         }
 
         .container {
           max-width: 1150px;
-          margin: 0 auto;
+          margin: auto;
           padding: 35px 25px 60px;
         }
 
@@ -332,13 +320,11 @@ export default function Cronograma() {
         .title {
           font-size: 30px;
           font-weight: 700;
-          letter-spacing: -0.5px;
         }
 
         .actions {
           display: flex;
           gap: 10px;
-          flex-wrap: wrap;
         }
 
         .btn {
@@ -353,30 +339,19 @@ export default function Cronograma() {
           color: white;
           padding: 11px 18px;
           border-radius: 12px;
-          font-size: 14px;
-        }
-
-        .btn-main:hover {
-          opacity: 0.92;
         }
 
         .btn-light {
           background: white;
           border: 1px solid #e5e7eb;
-          color: #374151;
           padding: 11px 18px;
           border-radius: 12px;
-          font-size: 14px;
-        }
-
-        .btn-light:hover {
-          background: #f9fafb;
         }
 
         .filtros {
           display: flex;
           gap: 15px;
-          margin-bottom: 28px;
+          margin-bottom: 25px;
           flex-wrap: wrap;
         }
 
@@ -385,9 +360,7 @@ export default function Cronograma() {
           border: 1px solid #e5e7eb;
           border-radius: 12px;
           padding: 11px 14px;
-          min-width: 190px;
-          font-size: 14px;
-          color: #374151;
+          min-width: 180px;
         }
 
         .lista {
@@ -402,9 +375,7 @@ export default function Cronograma() {
           padding: 22px;
           border: 1px solid #edf0f5;
           box-shadow:
-            0 4px 12px rgba(15, 23, 42, 0.04),
-            0 1px 2px rgba(15, 23, 42, 0.03);
-          transition: 0.25s;
+            0 4px 12px rgba(15,23,42,0.04);
         }
 
         .item-alerta {
@@ -415,12 +386,6 @@ export default function Cronograma() {
               #fffdf5 0%,
               #ffffff 100%
             );
-          box-shadow:
-            0 4px 14px rgba(250, 204, 21, 0.12);
-        }
-
-        .item:hover {
-          transform: translateY(-2px);
         }
 
         .linha {
@@ -446,27 +411,24 @@ export default function Cronograma() {
 
         .titulo-topo strong {
           font-size: 17px;
-          font-weight: 700;
         }
 
         .realizado-tag {
           background: #dcfce7;
           color: #166534;
           font-size: 10px;
-          font-weight: 700;
           padding: 4px 8px;
           border-radius: 20px;
-          text-transform: uppercase;
+          font-weight: 700;
         }
 
         .alerta-badge {
           background: #fef3c7;
           color: #92400e;
           font-size: 10px;
-          font-weight: 700;
           padding: 4px 8px;
           border-radius: 20px;
-          text-transform: uppercase;
+          font-weight: 700;
         }
 
         .sub {
@@ -484,7 +446,6 @@ export default function Cronograma() {
           font-size: 11px;
           color: #9ca3af;
           cursor: pointer;
-          font-weight: 500;
         }
 
         .link-action:hover {
@@ -501,7 +462,6 @@ export default function Cronograma() {
           border-radius: 10px;
           padding: 7px 11px;
           font-size: 12px;
-          color: #374151;
           cursor: pointer;
         }
 
@@ -511,9 +471,6 @@ export default function Cronograma() {
           border-radius: 50%;
           border: none;
           cursor: pointer;
-          display: flex;
-          align-items: center;
-          justify-content: center;
           font-size: 16px;
         }
 
@@ -528,25 +485,9 @@ export default function Cronograma() {
         }
 
         .detalhe {
-          margin-top: 22px;
+          margin-top: 20px;
           padding-top: 20px;
           border-top: 1px solid #f1f5f9;
-        }
-
-        .detalhe p {
-          font-size: 14px;
-          line-height: 1.7;
-          color: #374151;
-        }
-
-        .status-ok {
-          color: #15803d;
-          font-weight: 700;
-        }
-
-        .status-pendente {
-          color: #b45309;
-          font-weight: 700;
         }
 
         .obs-box {
@@ -554,12 +495,9 @@ export default function Cronograma() {
           border-radius: 14px;
           border: 1px solid #e5e7eb;
           padding: 14px;
-          font-size: 14px;
           margin-top: 10px;
           resize: vertical;
           box-sizing: border-box;
-          font-family: Inter, Arial, sans-serif;
-          background: #fafafa;
         }
 
         .mini-actions {
@@ -575,18 +513,15 @@ export default function Cronograma() {
           border-radius: 10px;
           padding: 8px 14px;
           font-size: 12px;
-          font-weight: 600;
           cursor: pointer;
         }
 
         .btn-cancel-small {
           background: #f3f4f6;
           border: 1px solid #e5e7eb;
-          color: #374151;
           border-radius: 10px;
           padding: 8px 14px;
           font-size: 12px;
-          font-weight: 600;
           cursor: pointer;
         }
 
@@ -651,14 +586,12 @@ export default function Cronograma() {
 
             {produtores.map(
               (produtor) => (
-
                 <option
                   key={produtor}
                   value={produtor}
                 >
                   {produtor}
                 </option>
-
               )
             )}
 
@@ -735,7 +668,266 @@ export default function Cronograma() {
 
                 </div>
 
+                <div className="acoes-item">
+
+                  <div
+                    className="link-action"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      abrirEdicao(item);
+                    }}
+                  >
+                    editar
+                  </div>
+
+                  <div
+                    className="link-action link-delete"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      excluir(item.id);
+                    }}
+                  >
+                    excluir
+                  </div>
+
+                  <button
+                    className="btn-obs"
+                    onClick={(e) => {
+                      e.stopPropagation();
+
+                      setAberto(
+                        aberto === item.id
+                          ? null
+                          : item.id
+                      );
+                    }}
+                  >
+                    Observações
+                  </button>
+
+                  <button
+                    className={`check-btn ${
+                      item.realizado
+                        ? "check-on"
+                        : "check-off"
+                    }`}
+                    onClick={(e) => {
+                      e.stopPropagation();
+
+                      toggleRealizado(
+                        item.id,
+                        item.realizado
+                      );
+                    }}
+                  >
+                    {item.realizado
+                      ? "✓"
+                      : "○"}
+                  </button>
+
+                </div>
+
               </div>
+
+              {aberto === item.id && (
+
+                <div className="detalhe">
+
+                  {editando === item.id ? (
+
+                    <>
+
+                      <input
+                        className="obs-box"
+                        value={formEdit.titulo}
+                        placeholder="Título"
+                        onChange={(e) =>
+                          setFormEdit({
+                            ...formEdit,
+                            titulo:
+                              e.target.value,
+                          })
+                        }
+                      />
+
+                      <input
+                        className="obs-box"
+                        value={formEdit.motivo}
+                        placeholder="Motivo"
+                        onChange={(e) =>
+                          setFormEdit({
+                            ...formEdit,
+                            motivo:
+                              e.target.value,
+                          })
+                        }
+                      />
+
+                      <textarea
+                        className="obs-box"
+                        value={
+                          formEdit.descricao
+                        }
+                        placeholder="Descrição"
+                        onChange={(e) =>
+                          setFormEdit({
+                            ...formEdit,
+                            descricao:
+                              e.target.value,
+                          })
+                        }
+                      />
+
+                      <div
+                        style={{
+                          display: "flex",
+                          gap: 10,
+                        }}
+                      >
+
+                        <input
+                          type="date"
+                          className="obs-box"
+                          value={
+                            formEdit.data_inicio
+                          }
+                          onChange={(e) =>
+                            setFormEdit({
+                              ...formEdit,
+                              data_inicio:
+                                e.target.value,
+                            })
+                          }
+                        />
+
+                        <input
+                          type="date"
+                          className="obs-box"
+                          value={
+                            formEdit.data_fim
+                          }
+                          onChange={(e) =>
+                            setFormEdit({
+                              ...formEdit,
+                              data_fim:
+                                e.target.value,
+                            })
+                          }
+                        />
+
+                      </div>
+
+                      <textarea
+                        className="obs-box"
+                        value={
+                          formEdit.observacoes
+                        }
+                        placeholder="Observações"
+                        onChange={(e) =>
+                          setFormEdit({
+                            ...formEdit,
+                            observacoes:
+                              e.target.value,
+                          })
+                        }
+                      />
+
+                      <div className="mini-actions">
+
+                        <button
+                          className="btn-save-small"
+                          onClick={() =>
+                            salvarEdicao(
+                              item.id
+                            )
+                          }
+                        >
+                          salvar alterações
+                        </button>
+
+                        <button
+                          className="btn-cancel-small"
+                          onClick={() =>
+                            setEditando(null)
+                          }
+                        >
+                          cancelar
+                        </button>
+
+                      </div>
+
+                    </>
+
+                  ) : (
+
+                    <>
+
+                      <p>
+                        <strong>
+                          Motivo:
+                        </strong>{" "}
+                        {item.motivo || "-"}
+                      </p>
+
+                      <p>
+                        <strong>
+                          Descrição:
+                        </strong>{" "}
+                        {item.descricao ||
+                          "-"}
+                      </p>
+
+                      <textarea
+                        className="obs-box"
+                        value={
+                          item.observacoes ||
+                          ""
+                        }
+                        placeholder="Adicionar observações..."
+                        onChange={(e) => {
+
+                          const texto =
+                            e.target.value;
+
+                          setDados((prev) =>
+                            prev.map((d) =>
+                              d.id ===
+                              item.id
+                                ? {
+                                    ...d,
+                                    observacoes:
+                                      texto,
+                                  }
+                                : d
+                            )
+                          );
+                        }}
+                      />
+
+                      <div className="mini-actions">
+
+                        <button
+                          className="btn-save-small"
+                          onClick={() =>
+                            salvarObservacoes(
+                              item.id,
+                              item.observacoes ||
+                                ""
+                            )
+                          }
+                        >
+                          salvar observações
+                        </button>
+
+                      </div>
+
+                    </>
+
+                  )}
+
+                </div>
+
+              )}
 
             </div>
 
