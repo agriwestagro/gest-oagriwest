@@ -186,6 +186,44 @@ export default function Cronograma() {
     );
   }
 
+  async function salvarSomenteObservacoes(
+    id: any,
+    observacoes: string
+  ) {
+
+    const { error } = await supabase
+      .from("cronograma_semanal")
+      .update({
+        observacoes,
+      })
+      .eq("id", id);
+
+    if (error) {
+      console.log(error);
+
+      alert(
+        "Erro ao salvar observações"
+      );
+
+      return;
+    }
+
+    setDados((prev) =>
+      prev.map((item) =>
+        item.id === id
+          ? {
+              ...item,
+              observacoes,
+            }
+          : item
+      )
+    );
+
+    alert(
+      "Observações salvas"
+    );
+  }
+
   function formatarData(
     data: string
   ) {
@@ -905,65 +943,15 @@ export default function Cronograma() {
                           }}
                         >
 
-                          <div
-                            style={{
-                              display:
-                                "flex",
-                              justifyContent:
-                                "space-between",
-                              alignItems:
-                                "center",
-                              marginBottom: 10,
-                            }}
-                          >
-
-                            <strong>
-                              Observações
-                            </strong>
-
-                            <div
-                              className="link-action"
-                              onClick={() => {
-
-                                setEditando(
-                                  item.id
-                                );
-
-                                setFormEdit({
-                                  titulo:
-                                    item.titulo ||
-                                    "",
-                                  motivo:
-                                    item.motivo ||
-                                    "",
-                                  descricao:
-                                    item.descricao ||
-                                    "",
-                                  data_inicio:
-                                    item.data_inicio ||
-                                    "",
-                                  data_fim:
-                                    item.data_fim ||
-                                    "",
-                                  observacoes:
-                                    item.observacoes ||
-                                    "",
-                                });
-                              }}
-                            >
-                              editar observações
-                            </div>
-
-                          </div>
+                          <strong>
+                            Observações
+                          </strong>
 
                           <textarea
                             className="obs-box"
                             value={
-                              editando ===
-                              item.id
-                                ? formEdit.observacoes
-                                : item.observacoes ||
-                                  ""
+                              item.observacoes ||
+                              ""
                             }
                             placeholder="Adicionar observações..."
                             onChange={(e) => {
@@ -972,30 +960,21 @@ export default function Cronograma() {
                                 e.target
                                   .value;
 
-                              setDados(
-                                (
-                                  prev
-                                ) =>
-                                  prev.map(
-                                    (
-                                      d
-                                    ) =>
-                                      d.id ===
-                                      item.id
-                                        ? {
-                                            ...d,
-                                            observacoes:
-                                              novoTexto,
-                                          }
-                                        : d
-                                  )
+                              setDados((prev) =>
+                                prev.map(
+                                  (
+                                    d
+                                  ) =>
+                                    d.id ===
+                                    item.id
+                                      ? {
+                                          ...d,
+                                          observacoes:
+                                            novoTexto,
+                                        }
+                                      : d
+                                )
                               );
-
-                              setFormEdit({
-                                ...formEdit,
-                                observacoes:
-                                  novoTexto,
-                              });
                             }}
                           />
 
@@ -1011,8 +990,10 @@ export default function Cronograma() {
                             <button
                               className="btn btn-primary"
                               onClick={() =>
-                                salvarEdicao(
-                                  item.id
+                                salvarSomenteObservacoes(
+                                  item.id,
+                                  item.observacoes ||
+                                    ""
                                 )
                               }
                             >
