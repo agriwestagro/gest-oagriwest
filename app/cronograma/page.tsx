@@ -20,17 +20,22 @@ export default function Cronograma() {
 
   async function carregar() {
 
-    const { data } = await supabase
+    const { data, error } = await supabase
       .from("cronograma_semanal")
       .select("*")
       .order("data_inicio", { ascending: true });
 
+    if (error) {
+      console.log(error);
+      return;
+    }
+
     setDados(data || []);
   }
 
-  async function toggleRealizado(id: string, atual: boolean) {
+  async function toggleRealizado(id: any, atual: boolean) {
 
-    await supabase
+    const { error } = await supabase
       .from("cronograma_semanal")
       .update({
         realizado: !atual,
@@ -38,10 +43,27 @@ export default function Cronograma() {
       })
       .eq("id", id);
 
-    carregar();
+    if (error) {
+      console.log(error);
+      return;
+    }
+
+    setDados((prev) =>
+      prev.map((item) =>
+        item.id === id
+          ? {
+              ...item,
+              realizado: !atual,
+              status: !atual
+                ? "realizado"
+                : "pendente",
+            }
+          : item
+      )
+    );
   }
 
-  async function excluir(id: string) {
+  async function excluir(id: any) {
 
     const confirmar = confirm(
       "Deseja realmente excluir esta atividade?"
@@ -49,19 +71,33 @@ export default function Cronograma() {
 
     if (!confirmar) return;
 
-    await supabase
+    const { error } = await supabase
       .from("cronograma_semanal")
       .delete()
       .eq("id", id);
 
-    carregar();
+    if (error) {
+      console.log("ERRO AO EXCLUIR:", error);
+      alert("Erro ao excluir: " + error.message);
+      return;
+    }
+
+    setDados((prev) =>
+      prev.filter((item) => item.id !== id)
+    );
+
+    if (aberto === id) {
+      setAberto(null);
+    }
   }
 
   function formatarData(data: string) {
 
     if (!data) return "";
 
-    return new Date(data).toLocaleDateString("pt-BR");
+    const partes = data.substring(0, 10).split("-");
+
+    return `${partes[2]}/${partes[1]}/${partes[0]}`;
   }
 
   const produtores = useMemo(() => {
@@ -84,12 +120,8 @@ export default function Cronograma() {
 
       if (filtroMes) {
 
-        const dataItem = new Date(item.data_inicio);
-
         const anoMesItem =
-          `${dataItem.getFullYear()}-${String(
-            dataItem.getMonth() + 1
-          ).padStart(2, "0")}`;
+          item.data_inicio?.substring(0, 7);
 
         matchMes = anoMesItem === filtroMes;
       }
@@ -320,7 +352,6 @@ export default function Cronograma() {
 
       <div className="container">
 
-        {/* HEADER */}
         <div className="header">
 
           <div className="title">
@@ -347,20 +378,23 @@ export default function Cronograma() {
 
         </div>
 
-        {/* FILTROS */}
         <div className="filtros">
 
           <input
             type="month"
             className="filtro"
             value={filtroMes}
-            onChange={(e) => setFiltroMes(e.target.value)}
+            onChange={(e) =>
+              setFiltroMes(e.target.value)
+            }
           />
 
           <select
             className="filtro"
             value={filtroProdutor}
-            onChange={(e) => setFiltroProdutor(e.target.value)}
+            onChange={(e) =>
+              setFiltroProdutor(e.target.value)
+            }
           >
 
             <option value="">
@@ -382,11 +416,12 @@ export default function Cronograma() {
 
         </div>
 
-        {/* LISTA */}
         <div className="lista">
 
           {dadosFiltrados.length === 0 && (
-            <div>Nenhuma atividade encontrada.</div>
+            <div>
+              Nenhuma atividade encontrada.
+            </div>
           )}
 
           {dadosFiltrados.map((item) => (
@@ -425,9 +460,18 @@ export default function Cronograma() {
 
                   <div className="sub">
 
-                    {(item.produtor || item.propriedade)} •
-                    Início: {formatarData(item.data_inicio)} •
-                    Fim: {formatarData(item.data_fim)}
+                    {(item.produtor ||
+                      item.propriedade)}{" "}
+                    •
+                    Início:{" "}
+                    {formatarData(
+                      item.data_inicio
+                    )}{" "}
+                    •
+                    Fim:{" "}
+                    {formatarData(
+                      item.data_fim
+                    )}
 
                   </div>
 
@@ -439,6 +483,7 @@ export default function Cronograma() {
                     className="btn-edit"
                     onClick={(e) => {
                       e.stopPropagation();
+
                       router.push(
                         `/cronograma/editar/${item.id}`
                       );
@@ -451,6 +496,7 @@ export default function Cronograma() {
                     className="btn-delete"
                     onClick={(e) => {
                       e.stopPropagation();
+
                       excluir(item.id);
                     }}
                   >
@@ -472,7 +518,9 @@ export default function Cronograma() {
                       );
                     }}
                   >
-                    {item.realizado ? "✓" : "○"}
+                    {item.realizado
+                      ? "✓"
+                      : "○"}
                   </button>
 
                 </div>
