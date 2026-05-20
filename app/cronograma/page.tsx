@@ -453,6 +453,7 @@ export default function Cronograma() {
           padding: 4px 8px;
           border-radius: 20px;
           font-weight: 700;
+          text-transform: uppercase;
         }
 
         .alerta-badge {
@@ -462,6 +463,7 @@ export default function Cronograma() {
           padding: 4px 8px;
           border-radius: 20px;
           font-weight: 700;
+          text-transform: uppercase;
         }
 
         .atrasado-badge {
@@ -471,6 +473,7 @@ export default function Cronograma() {
           padding: 4px 8px;
           border-radius: 20px;
           font-weight: 700;
+          text-transform: uppercase;
         }
 
         .sub {
@@ -488,6 +491,7 @@ export default function Cronograma() {
           font-size: 11px;
           color: #9ca3af;
           cursor: pointer;
+          transition: 0.2s;
         }
 
         .link-action:hover {
@@ -514,6 +518,7 @@ export default function Cronograma() {
           border: none;
           cursor: pointer;
           font-size: 16px;
+          transition: 0.2s;
         }
 
         .check-on {
@@ -540,6 +545,7 @@ export default function Cronograma() {
           margin-top: 10px;
           resize: vertical;
           box-sizing: border-box;
+          font-size: 14px;
         }
 
         .mini-actions {
@@ -786,6 +792,206 @@ export default function Cronograma() {
                 </div>
 
               </div>
+
+              {aberto === item.id && (
+
+                <div className="detalhe">
+
+                  {editando === item.id ? (
+
+                    <>
+
+                      <input
+                        className="obs-box"
+                        value={formEdit.titulo}
+                        placeholder="Título"
+                        onChange={(e) =>
+                          setFormEdit({
+                            ...formEdit,
+                            titulo:
+                              e.target.value,
+                          })
+                        }
+                      />
+
+                      <input
+                        className="obs-box"
+                        value={formEdit.motivo}
+                        placeholder="Motivo"
+                        onChange={(e) =>
+                          setFormEdit({
+                            ...formEdit,
+                            motivo:
+                              e.target.value,
+                          })
+                        }
+                      />
+
+                      <textarea
+                        className="obs-box"
+                        value={
+                          formEdit.descricao
+                        }
+                        placeholder="Descrição"
+                        onChange={(e) =>
+                          setFormEdit({
+                            ...formEdit,
+                            descricao:
+                              e.target.value,
+                          })
+                        }
+                      />
+
+                      <div
+                        style={{
+                          display: "flex",
+                          gap: 10,
+                        }}
+                      >
+
+                        <input
+                          type="date"
+                          className="obs-box"
+                          value={
+                            formEdit.data_inicio
+                          }
+                          onChange={(e) =>
+                            setFormEdit({
+                              ...formEdit,
+                              data_inicio:
+                                e.target.value,
+                            })
+                          }
+                        />
+
+                        <input
+                          type="date"
+                          className="obs-box"
+                          value={
+                            formEdit.data_fim
+                          }
+                          onChange={(e) =>
+                            setFormEdit({
+                              ...formEdit,
+                              data_fim:
+                                e.target.value,
+                            })
+                          }
+                        />
+
+                      </div>
+
+                      <textarea
+                        className="obs-box"
+                        value={
+                          formEdit.observacoes
+                        }
+                        placeholder="Observações"
+                        onChange={(e) =>
+                          setFormEdit({
+                            ...formEdit,
+                            observacoes:
+                              e.target.value,
+                          })
+                        }
+                      />
+
+                      <div className="mini-actions">
+
+                        <button
+                          className="btn-save-small"
+                          onClick={() =>
+                            salvarEdicao(
+                              item.id
+                            )
+                          }
+                        >
+                          salvar alterações
+                        </button>
+
+                        <button
+                          className="btn-cancel-small"
+                          onClick={() =>
+                            setEditando(null)
+                          }
+                        >
+                          cancelar
+                        </button>
+
+                      </div>
+
+                    </>
+
+                  ) : (
+
+                    <>
+
+                      <p>
+                        <strong>
+                          Motivo:
+                        </strong>{" "}
+                        {item.motivo || "-"}
+                      </p>
+
+                      <p>
+                        <strong>
+                          Descrição:
+                        </strong>{" "}
+                        {item.descricao ||
+                          "-"}
+                      </p>
+
+                      <textarea
+                        className="obs-box"
+                        value={
+                          item.observacoes ||
+                          ""
+                        }
+                        placeholder="Adicionar observações..."
+                        onChange={(e) => {
+
+                          const texto =
+                            e.target.value;
+
+                          setDados((prev) =>
+                            prev.map((d) =>
+                              d.id ===
+                              item.id
+                                ? {
+                                    ...d,
+                                    observacoes:
+                                      texto,
+                                  }
+                                : d
+                            )
+                          );
+                        }}
+                      />
+
+                      <div className="mini-actions">
+
+                        <button
+                          className="btn-save-small"
+                          onClick={() =>
+                            salvarObservacoes(
+                              item.id,
+                              item.observacoes ||
+                                ""
+                            )
+                          }
+                        >
+                          salvar observações
+                        </button>
+
+                      </div>
+
+                    </>
+
+                  )}
+
+                </div>
+
+              )}
 
             </div>
 
