@@ -233,6 +233,27 @@ export default function Cronograma() {
     return diff <= 3 && diff >= 0;
   }
 
+  function verificarAtraso(
+    dataFim: string,
+    realizado: boolean
+  ) {
+
+    if (
+      !dataFim ||
+      realizado
+    ) return false;
+
+    const hoje = new Date();
+
+    hoje.setHours(0,0,0,0);
+
+    const fim = new Date(dataFim);
+
+    fim.setHours(0,0,0,0);
+
+    return fim < hoje;
+  }
+
   const produtores = useMemo(() => {
 
     return [
@@ -388,6 +409,18 @@ export default function Cronograma() {
             );
         }
 
+        .item-atrasado {
+          border: 1px solid #ef4444;
+          background:
+            linear-gradient(
+              180deg,
+              #fff5f5 0%,
+              #ffffff 100%
+            );
+          box-shadow:
+            0 4px 14px rgba(239,68,68,0.12);
+        }
+
         .linha {
           display: flex;
           justify-content: space-between;
@@ -425,6 +458,15 @@ export default function Cronograma() {
         .alerta-badge {
           background: #fef3c7;
           color: #92400e;
+          font-size: 10px;
+          padding: 4px 8px;
+          border-radius: 20px;
+          font-weight: 700;
+        }
+
+        .atrasado-badge {
+          background: #fee2e2;
+          color: #991b1b;
           font-size: 10px;
           padding: 4px 8px;
           border-radius: 20px;
@@ -606,10 +648,15 @@ export default function Cronograma() {
             <div
               key={item.id}
               className={`item ${
-                verificarAlerta(
+                verificarAtraso(
                   item.data_fim,
                   item.realizado
                 )
+                  ? "item-atrasado"
+                  : verificarAlerta(
+                      item.data_fim,
+                      item.realizado
+                    )
                   ? "item-alerta"
                   : ""
               }`}
@@ -640,13 +687,24 @@ export default function Cronograma() {
                       </div>
                     )}
 
-                    {verificarAlerta(
+                    {verificarAtraso(
                       item.data_fim,
                       item.realizado
-                    ) && (
+                    ) ? (
+
+                      <div className="atrasado-badge">
+                        em atraso
+                      </div>
+
+                    ) : verificarAlerta(
+                        item.data_fim,
+                        item.realizado
+                      ) && (
+
                       <div className="alerta-badge">
                         prazo próximo
                       </div>
+
                     )}
 
                   </div>
@@ -728,206 +786,6 @@ export default function Cronograma() {
                 </div>
 
               </div>
-
-              {aberto === item.id && (
-
-                <div className="detalhe">
-
-                  {editando === item.id ? (
-
-                    <>
-
-                      <input
-                        className="obs-box"
-                        value={formEdit.titulo}
-                        placeholder="Título"
-                        onChange={(e) =>
-                          setFormEdit({
-                            ...formEdit,
-                            titulo:
-                              e.target.value,
-                          })
-                        }
-                      />
-
-                      <input
-                        className="obs-box"
-                        value={formEdit.motivo}
-                        placeholder="Motivo"
-                        onChange={(e) =>
-                          setFormEdit({
-                            ...formEdit,
-                            motivo:
-                              e.target.value,
-                          })
-                        }
-                      />
-
-                      <textarea
-                        className="obs-box"
-                        value={
-                          formEdit.descricao
-                        }
-                        placeholder="Descrição"
-                        onChange={(e) =>
-                          setFormEdit({
-                            ...formEdit,
-                            descricao:
-                              e.target.value,
-                          })
-                        }
-                      />
-
-                      <div
-                        style={{
-                          display: "flex",
-                          gap: 10,
-                        }}
-                      >
-
-                        <input
-                          type="date"
-                          className="obs-box"
-                          value={
-                            formEdit.data_inicio
-                          }
-                          onChange={(e) =>
-                            setFormEdit({
-                              ...formEdit,
-                              data_inicio:
-                                e.target.value,
-                            })
-                          }
-                        />
-
-                        <input
-                          type="date"
-                          className="obs-box"
-                          value={
-                            formEdit.data_fim
-                          }
-                          onChange={(e) =>
-                            setFormEdit({
-                              ...formEdit,
-                              data_fim:
-                                e.target.value,
-                            })
-                          }
-                        />
-
-                      </div>
-
-                      <textarea
-                        className="obs-box"
-                        value={
-                          formEdit.observacoes
-                        }
-                        placeholder="Observações"
-                        onChange={(e) =>
-                          setFormEdit({
-                            ...formEdit,
-                            observacoes:
-                              e.target.value,
-                          })
-                        }
-                      />
-
-                      <div className="mini-actions">
-
-                        <button
-                          className="btn-save-small"
-                          onClick={() =>
-                            salvarEdicao(
-                              item.id
-                            )
-                          }
-                        >
-                          salvar alterações
-                        </button>
-
-                        <button
-                          className="btn-cancel-small"
-                          onClick={() =>
-                            setEditando(null)
-                          }
-                        >
-                          cancelar
-                        </button>
-
-                      </div>
-
-                    </>
-
-                  ) : (
-
-                    <>
-
-                      <p>
-                        <strong>
-                          Motivo:
-                        </strong>{" "}
-                        {item.motivo || "-"}
-                      </p>
-
-                      <p>
-                        <strong>
-                          Descrição:
-                        </strong>{" "}
-                        {item.descricao ||
-                          "-"}
-                      </p>
-
-                      <textarea
-                        className="obs-box"
-                        value={
-                          item.observacoes ||
-                          ""
-                        }
-                        placeholder="Adicionar observações..."
-                        onChange={(e) => {
-
-                          const texto =
-                            e.target.value;
-
-                          setDados((prev) =>
-                            prev.map((d) =>
-                              d.id ===
-                              item.id
-                                ? {
-                                    ...d,
-                                    observacoes:
-                                      texto,
-                                  }
-                                : d
-                            )
-                          );
-                        }}
-                      />
-
-                      <div className="mini-actions">
-
-                        <button
-                          className="btn-save-small"
-                          onClick={() =>
-                            salvarObservacoes(
-                              item.id,
-                              item.observacoes ||
-                                ""
-                            )
-                          }
-                        >
-                          salvar observações
-                        </button>
-
-                      </div>
-
-                    </>
-
-                  )}
-
-                </div>
-
-              )}
 
             </div>
 
