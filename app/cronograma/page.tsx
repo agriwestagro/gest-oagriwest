@@ -32,7 +32,26 @@ export default function Cronograma() {
 
     await supabase
       .from("cronograma_semanal")
-      .update({ realizado: !atual })
+      .update({
+        realizado: !atual,
+        status: !atual ? "realizado" : "pendente",
+      })
+      .eq("id", id);
+
+    carregar();
+  }
+
+  async function excluir(id: string) {
+
+    const confirmar = confirm(
+      "Deseja realmente excluir esta atividade?"
+    );
+
+    if (!confirmar) return;
+
+    await supabase
+      .from("cronograma_semanal")
+      .delete()
       .eq("id", id);
 
     carregar();
@@ -47,7 +66,13 @@ export default function Cronograma() {
 
   const produtores = useMemo(() => {
 
-    return [...new Set(dados.map((d) => d.produtor).filter(Boolean))];
+    return [
+      ...new Set(
+        dados
+          .map((d) => d.produtor || d.propriedade)
+          .filter(Boolean)
+      ),
+    ];
 
   }, [dados]);
 
@@ -55,13 +80,26 @@ export default function Cronograma() {
 
     return dados.filter((item) => {
 
-      const mesAtividade = item.data_inicio?.slice(0, 7);
+      let matchMes = true;
 
-      const matchMes =
-        !filtroMes || mesAtividade === filtroMes;
+      if (filtroMes) {
+
+        const dataItem = new Date(item.data_inicio);
+
+        const anoMesItem =
+          `${dataItem.getFullYear()}-${String(
+            dataItem.getMonth() + 1
+          ).padStart(2, "0")}`;
+
+        matchMes = anoMesItem === filtroMes;
+      }
+
+      const produtorItem =
+        item.produtor || item.propriedade;
 
       const matchProdutor =
-        !filtroProdutor || item.produtor === filtroProdutor;
+        !filtroProdutor ||
+        produtorItem === filtroProdutor;
 
       return matchMes && matchProdutor;
     });
@@ -111,6 +149,7 @@ export default function Cronograma() {
           border-radius: 10px;
           cursor: pointer;
           font-weight: bold;
+          transition: 0.2s;
         }
 
         .btn-primary {
@@ -118,18 +157,18 @@ export default function Cronograma() {
           color: white;
         }
 
-        .btn-secondary {
-          background: #e4e7eb;
+        .btn-primary:hover {
+          opacity: 0.9;
         }
 
-        .btn-edit {
-          background: #facc15;
+        .btn-secondary {
+          background: #e4e7eb;
         }
 
         .filtros {
           display: flex;
           gap: 15px;
-          margin-bottom: 20px;
+          margin-bottom: 25px;
           flex-wrap: wrap;
         }
 
@@ -138,38 +177,68 @@ export default function Cronograma() {
           border-radius: 10px;
           border: 1px solid #ddd;
           min-width: 180px;
+          background: white;
         }
 
         .lista {
           display: flex;
           flex-direction: column;
-          gap: 12px;
+          gap: 14px;
         }
 
         .item {
           background: white;
-          border-radius: 14px;
+          border-radius: 16px;
           padding: 18px;
-          border: 1px solid #eee;
-          box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+          border: 1px solid #ececec;
+          box-shadow: 0 4px 10px rgba(0,0,0,0.04);
+          transition: 0.2s;
+        }
+
+        .item:hover {
+          box-shadow: 0 6px 18px rgba(0,0,0,0.06);
         }
 
         .linha {
           display: flex;
           justify-content: space-between;
           align-items: center;
-          cursor: pointer;
           gap: 20px;
+          cursor: pointer;
+        }
+
+        .titulo-area {
+          display: flex;
+          flex-direction: column;
+          gap: 5px;
+        }
+
+        .titulo-topo {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          flex-wrap: wrap;
+        }
+
+        .realizado-tag {
+          font-size: 10px;
+          background: #dcfce7;
+          color: #166534;
+          padding: 3px 7px;
+          border-radius: 20px;
+          font-weight: bold;
+          letter-spacing: 0.3px;
         }
 
         .sub {
           font-size: 13px;
           color: #666;
-          margin-top: 5px;
         }
 
         .detalhe {
-          margin-top: 15px;
+          margin-top: 18px;
+          padding-top: 15px;
+          border-top: 1px solid #f0f0f0;
           font-size: 14px;
           color: #444;
         }
@@ -187,7 +256,64 @@ export default function Cronograma() {
         .acoes-item {
           display: flex;
           align-items: center;
-          gap: 10px;
+          gap: 8px;
+        }
+
+        .btn-edit {
+          background: transparent;
+          color: #777;
+          border: 1px solid #ddd;
+          padding: 5px 10px;
+          font-size: 12px;
+          border-radius: 8px;
+          cursor: pointer;
+          transition: 0.2s;
+        }
+
+        .btn-edit:hover {
+          background: #f3f4f6;
+        }
+
+        .btn-delete {
+          background: transparent;
+          color: #b91c1c;
+          border: 1px solid #f1caca;
+          padding: 5px 10px;
+          font-size: 12px;
+          border-radius: 8px;
+          cursor: pointer;
+          transition: 0.2s;
+        }
+
+        .btn-delete:hover {
+          background: #fef2f2;
+        }
+
+        .check-btn {
+          width: 34px;
+          height: 34px;
+          border-radius: 50%;
+          border: none;
+          cursor: pointer;
+          font-size: 16px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          transition: 0.2s;
+        }
+
+        .check-on {
+          background: #16a34a;
+          color: white;
+        }
+
+        .check-off {
+          background: #ececec;
+          color: #999;
+        }
+
+        .check-btn:hover {
+          transform: scale(1.05);
         }
 
       `}</style>
@@ -243,7 +369,10 @@ export default function Cronograma() {
 
             {produtores.map((produtor) => (
 
-              <option key={produtor} value={produtor}>
+              <option
+                key={produtor}
+                value={produtor}
+              >
                 {produtor}
               </option>
 
@@ -262,22 +391,41 @@ export default function Cronograma() {
 
           {dadosFiltrados.map((item) => (
 
-            <div key={item.id} className="item">
+            <div
+              key={item.id}
+              className="item"
+            >
 
               <div
                 className="linha"
                 onClick={() =>
-                  setAberto(aberto === item.id ? null : item.id)
+                  setAberto(
+                    aberto === item.id
+                      ? null
+                      : item.id
+                  )
                 }
               >
 
-                <div>
+                <div className="titulo-area">
 
-                  <strong>{item.titulo}</strong>
+                  <div className="titulo-topo">
+
+                    <strong>
+                      {item.titulo}
+                    </strong>
+
+                    {item.realizado && (
+                      <div className="realizado-tag">
+                        realizado
+                      </div>
+                    )}
+
+                  </div>
 
                   <div className="sub">
 
-                    {item.produtor} •
+                    {(item.produtor || item.propriedade)} •
                     Início: {formatarData(item.data_inicio)} •
                     Fim: {formatarData(item.data_fim)}
 
@@ -288,22 +436,44 @@ export default function Cronograma() {
                 <div className="acoes-item">
 
                   <button
-                    className="btn btn-edit"
+                    className="btn-edit"
                     onClick={(e) => {
                       e.stopPropagation();
-                      router.push(`/cronograma/editar/${item.id}`);
+                      router.push(
+                        `/cronograma/editar/${item.id}`
+                      );
                     }}
                   >
-                    Editar
+                    editar
                   </button>
 
-                  <input
-                    type="checkbox"
-                    checked={item.realizado}
-                    onChange={() =>
-                      toggleRealizado(item.id, item.realizado)
-                    }
-                  />
+                  <button
+                    className="btn-delete"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      excluir(item.id);
+                    }}
+                  >
+                    excluir
+                  </button>
+
+                  <button
+                    className={`check-btn ${
+                      item.realizado
+                        ? "check-on"
+                        : "check-off"
+                    }`}
+                    onClick={(e) => {
+                      e.stopPropagation();
+
+                      toggleRealizado(
+                        item.id,
+                        item.realizado
+                      );
+                    }}
+                  >
+                    {item.realizado ? "✓" : "○"}
+                  </button>
 
                 </div>
 
@@ -314,11 +484,13 @@ export default function Cronograma() {
                 <div className="detalhe">
 
                   <p>
-                    <strong>Motivo:</strong> {item.motivo}
+                    <strong>Motivo:</strong>{" "}
+                    {item.motivo || "-"}
                   </p>
 
                   <p>
-                    <strong>Descrição:</strong> {item.descricao}
+                    <strong>Descrição:</strong>{" "}
+                    {item.descricao || "-"}
                   </p>
 
                   <p
@@ -329,8 +501,8 @@ export default function Cronograma() {
                     }
                   >
                     {item.realizado
-                      ? "Realizado"
-                      : "Pendente"}
+                      ? "✓ Atividade realizada"
+                      : "⏳ Atividade pendente"}
                   </p>
 
                 </div>
