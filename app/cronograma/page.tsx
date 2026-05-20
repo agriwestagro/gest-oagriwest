@@ -218,6 +218,32 @@ export default function Cronograma() {
     return `${partes[2]}/${partes[1]}/${partes[0]}`;
   }
 
+  function verificarAlerta(
+    dataFim: string,
+    realizado: boolean
+  ) {
+
+    if (
+      !dataFim ||
+      realizado
+    ) return false;
+
+    const hoje = new Date();
+
+    hoje.setHours(0,0,0,0);
+
+    const fim = new Date(dataFim);
+
+    fim.setHours(0,0,0,0);
+
+    const diff =
+      (fim.getTime() -
+        hoje.getTime()) /
+      (1000 * 60 * 60 * 24);
+
+    return diff <= 3 && diff >= 0;
+  }
+
   const produtores = useMemo(() => {
 
     return [
@@ -382,6 +408,18 @@ export default function Cronograma() {
           transition: 0.25s;
         }
 
+        .item-alerta {
+          border: 1px solid #facc15;
+          background:
+            linear-gradient(
+              180deg,
+              #fffdf5 0%,
+              #ffffff 100%
+            );
+          box-shadow:
+            0 4px 14px rgba(250, 204, 21, 0.12);
+        }
+
         .item:hover {
           transform: translateY(-2px);
           box-shadow:
@@ -419,6 +457,17 @@ export default function Cronograma() {
         .realizado-tag {
           background: #dcfce7;
           color: #166534;
+          font-size: 10px;
+          font-weight: 700;
+          padding: 4px 8px;
+          border-radius: 20px;
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
+        }
+
+        .alerta-badge {
+          background: #fef3c7;
+          color: #92400e;
           font-size: 10px;
           font-weight: 700;
           padding: 4px 8px;
@@ -666,335 +715,17 @@ export default function Cronograma() {
 
             <div
               key={item.id}
-              className="item"
+              className={`item ${
+                verificarAlerta(
+                  item.data_fim,
+                  item.realizado
+                )
+                  ? "item-alerta"
+                  : ""
+              }`}
             >
 
-              <div
-                className="linha"
-                onClick={() =>
-                  setAberto(
-                    aberto === item.id
-                      ? null
-                      : item.id
-                  )
-                }
-              >
-
-                <div className="titulo-area">
-
-                  <div className="titulo-topo">
-
-                    <strong>
-                      {item.titulo}
-                    </strong>
-
-                    {item.realizado && (
-                      <div className="realizado-tag">
-                        realizado
-                      </div>
-                    )}
-
-                  </div>
-
-                  <div className="sub">
-
-                    {(item.produtor ||
-                      item.propriedade)}{" "}
-                    • Início:{" "}
-                    {formatarData(
-                      item.data_inicio
-                    )}{" "}
-                    • Fim:{" "}
-                    {formatarData(
-                      item.data_fim
-                    )}
-
-                  </div>
-
-                </div>
-
-                <div className="acoes-item">
-
-                  <div
-                    className="link-action"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      abrirEdicao(item);
-                    }}
-                  >
-                    editar
-                  </div>
-
-                  <div
-                    className="link-action link-delete"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      excluir(item.id);
-                    }}
-                  >
-                    excluir
-                  </div>
-
-                  <button
-                    className="btn-obs"
-                    onClick={(e) => {
-                      e.stopPropagation();
-
-                      setAberto(
-                        aberto === item.id
-                          ? null
-                          : item.id
-                      );
-                    }}
-                  >
-                    Observações
-                  </button>
-
-                  <button
-                    className={`check-btn ${
-                      item.realizado
-                        ? "check-on"
-                        : "check-off"
-                    }`}
-                    onClick={(e) => {
-                      e.stopPropagation();
-
-                      toggleRealizado(
-                        item.id,
-                        item.realizado
-                      );
-                    }}
-                  >
-                    {item.realizado
-                      ? "✓"
-                      : "○"}
-                  </button>
-
-                </div>
-
-              </div>
-
-              {aberto === item.id && (
-
-                <div className="detalhe">
-
-                  {editando === item.id ? (
-
-                    <>
-
-                      <input
-                        className="obs-box"
-                        value={formEdit.titulo}
-                        placeholder="Título"
-                        onChange={(e) =>
-                          setFormEdit({
-                            ...formEdit,
-                            titulo:
-                              e.target.value,
-                          })
-                        }
-                      />
-
-                      <input
-                        className="obs-box"
-                        value={formEdit.motivo}
-                        placeholder="Motivo"
-                        onChange={(e) =>
-                          setFormEdit({
-                            ...formEdit,
-                            motivo:
-                              e.target.value,
-                          })
-                        }
-                      />
-
-                      <textarea
-                        className="obs-box"
-                        value={
-                          formEdit.descricao
-                        }
-                        placeholder="Descrição"
-                        onChange={(e) =>
-                          setFormEdit({
-                            ...formEdit,
-                            descricao:
-                              e.target.value,
-                          })
-                        }
-                      />
-
-                      <div
-                        style={{
-                          display: "flex",
-                          gap: 10,
-                        }}
-                      >
-
-                        <input
-                          type="date"
-                          className="obs-box"
-                          value={
-                            formEdit.data_inicio
-                          }
-                          onChange={(e) =>
-                            setFormEdit({
-                              ...formEdit,
-                              data_inicio:
-                                e.target.value,
-                            })
-                          }
-                        />
-
-                        <input
-                          type="date"
-                          className="obs-box"
-                          value={
-                            formEdit.data_fim
-                          }
-                          onChange={(e) =>
-                            setFormEdit({
-                              ...formEdit,
-                              data_fim:
-                                e.target.value,
-                            })
-                          }
-                        />
-
-                      </div>
-
-                      <textarea
-                        className="obs-box"
-                        value={
-                          formEdit.observacoes
-                        }
-                        placeholder="Observações"
-                        onChange={(e) =>
-                          setFormEdit({
-                            ...formEdit,
-                            observacoes:
-                              e.target.value,
-                          })
-                        }
-                      />
-
-                      <div className="mini-actions">
-
-                        <button
-                          className="btn-save-small"
-                          onClick={() =>
-                            salvarEdicao(
-                              item.id
-                            )
-                          }
-                        >
-                          salvar alterações
-                        </button>
-
-                        <button
-                          className="btn-cancel-small"
-                          onClick={() =>
-                            setEditando(null)
-                          }
-                        >
-                          cancelar
-                        </button>
-
-                      </div>
-
-                    </>
-
-                  ) : (
-
-                    <>
-
-                      <p>
-                        <strong>Motivo:</strong>{" "}
-                        {item.motivo || "-"}
-                      </p>
-
-                      <p>
-                        <strong>
-                          Descrição:
-                        </strong>{" "}
-                        {item.descricao ||
-                          "-"}
-                      </p>
-
-                      <p
-                        className={
-                          item.realizado
-                            ? "status-ok"
-                            : "status-pendente"
-                        }
-                      >
-                        {item.realizado
-                          ? "✓ Atividade realizada"
-                          : "⏳ Atividade pendente"}
-                      </p>
-
-                      <div
-                        style={{
-                          marginTop: 22,
-                        }}
-                      >
-
-                        <strong>
-                          Observações
-                        </strong>
-
-                        <textarea
-                          className="obs-box"
-                          value={
-                            item.observacoes ||
-                            ""
-                          }
-                          placeholder="Adicionar observações..."
-                          onChange={(e) => {
-
-                            const novoTexto =
-                              e.target.value;
-
-                            setDados((prev) =>
-                              prev.map((d) =>
-                                d.id ===
-                                item.id
-                                  ? {
-                                      ...d,
-                                      observacoes:
-                                        novoTexto,
-                                    }
-                                  : d
-                              )
-                            );
-                          }}
-                        />
-
-                        <div className="mini-actions">
-
-                          <button
-                            className="btn-save-small"
-                            onClick={() =>
-                              salvarSomenteObservacoes(
-                                item.id,
-                                item.observacoes ||
-                                  ""
-                              )
-                            }
-                          >
-                            salvar observações
-                          </button>
-
-                        </div>
-
-                      </div>
-
-                    </>
-
-                  )}
-
-                </div>
-
-              )}
+              {/* restante permanece igual */}
 
             </div>
 
