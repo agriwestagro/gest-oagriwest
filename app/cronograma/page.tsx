@@ -14,8 +14,16 @@ export default function Cronograma() {
   const [filtroMes, setFiltroMes] = useState("");
   const [filtroProdutor, setFiltroProdutor] = useState("");
 
-  const [salvandoObs, setSalvandoObs] =
-    useState<string | null>(null);
+  const [editando, setEditando] = useState<any>(null);
+
+  const [formEdit, setFormEdit] = useState({
+    titulo: "",
+    motivo: "",
+    descricao: "",
+    data_inicio: "",
+    data_fim: "",
+    observacoes: "",
+  });
 
   useEffect(() => {
     carregar();
@@ -87,10 +95,7 @@ export default function Cronograma() {
       .eq("id", id);
 
     if (error) {
-      console.log(
-        "ERRO AO EXCLUIR:",
-        error
-      );
+      console.log(error);
 
       alert(
         "Erro ao excluir: " +
@@ -111,17 +116,45 @@ export default function Cronograma() {
     }
   }
 
-  async function salvarObservacoes(
-    id: any,
-    observacoes: string
-  ) {
+  function abrirEdicao(item: any) {
 
-    setSalvandoObs(id);
+    setEditando(item.id);
+
+    setAberto(item.id);
+
+    setFormEdit({
+      titulo: item.titulo || "",
+      motivo: item.motivo || "",
+      descricao:
+        item.descricao || "",
+      data_inicio:
+        item.data_inicio || "",
+      data_fim:
+        item.data_fim || "",
+      observacoes:
+        item.observacoes || "",
+    });
+  }
+
+  async function salvarEdicao(
+    id: any
+  ) {
 
     const { error } = await supabase
       .from("cronograma_semanal")
       .update({
-        observacoes,
+        titulo:
+          formEdit.titulo,
+        motivo:
+          formEdit.motivo,
+        descricao:
+          formEdit.descricao,
+        data_inicio:
+          formEdit.data_inicio,
+        data_fim:
+          formEdit.data_fim,
+        observacoes:
+          formEdit.observacoes,
       })
       .eq("id", id);
 
@@ -129,14 +162,33 @@ export default function Cronograma() {
       console.log(error);
 
       alert(
-        "Erro ao salvar observações"
+        "Erro ao salvar"
       );
+
+      return;
     }
 
-    setSalvandoObs(null);
+    setDados((prev) =>
+      prev.map((item) =>
+        item.id === id
+          ? {
+              ...item,
+              ...formEdit,
+            }
+          : item
+      )
+    );
+
+    setEditando(null);
+
+    alert(
+      "Alterações salvas"
+    );
   }
 
-  function formatarData(data: string) {
+  function formatarData(
+    data: string
+  ) {
 
     if (!data) return "";
 
@@ -163,43 +215,48 @@ export default function Cronograma() {
 
   }, [dados]);
 
-  const dadosFiltrados = useMemo(() => {
+  const dadosFiltrados =
+    useMemo(() => {
 
-    return dados.filter((item) => {
+      return dados.filter(
+        (item) => {
 
-      let matchMes = true;
+          let matchMes = true;
 
-      if (filtroMes) {
+          if (filtroMes) {
 
-        const anoMesItem =
-          item.data_inicio?.substring(
-            0,
-            7
+            const anoMesItem =
+              item.data_inicio?.substring(
+                0,
+                7
+              );
+
+            matchMes =
+              anoMesItem ===
+              filtroMes;
+          }
+
+          const produtorItem =
+            item.produtor ||
+            item.propriedade;
+
+          const matchProdutor =
+            !filtroProdutor ||
+            produtorItem ===
+              filtroProdutor;
+
+          return (
+            matchMes &&
+            matchProdutor
           );
-
-        matchMes =
-          anoMesItem === filtroMes;
-      }
-
-      const produtorItem =
-        item.produtor ||
-        item.propriedade;
-
-      const matchProdutor =
-        !filtroProdutor ||
-        produtorItem ===
-          filtroProdutor;
-
-      return (
-        matchMes && matchProdutor
+        }
       );
-    });
 
-  }, [
-    dados,
-    filtroMes,
-    filtroProdutor,
-  ]);
+    }, [
+      dados,
+      filtroMes,
+      filtroProdutor,
+    ]);
 
   return (
     <>
@@ -321,7 +378,6 @@ export default function Cronograma() {
           padding: 3px 7px;
           border-radius: 20px;
           font-weight: bold;
-          letter-spacing: 0.3px;
         }
 
         .sub {
@@ -333,8 +389,6 @@ export default function Cronograma() {
           margin-top: 18px;
           padding-top: 15px;
           border-top: 1px solid #f0f0f0;
-          font-size: 14px;
-          color: #444;
         }
 
         .status-ok {
@@ -449,7 +503,9 @@ export default function Cronograma() {
             <button
               className="btn btn-secondary"
               onClick={() =>
-                router.push("/dashboard")
+                router.push(
+                  "/dashboard"
+                )
               }
             >
               ← Voltar
@@ -474,7 +530,9 @@ export default function Cronograma() {
 
           <select
             className="filtro"
-            value={filtroProdutor}
+            value={
+              filtroProdutor
+            }
             onChange={(e) =>
               setFiltroProdutor(
                 e.target.value
@@ -491,7 +549,9 @@ export default function Cronograma() {
 
                 <option
                   key={produtor}
-                  value={produtor}
+                  value={
+                    produtor
+                  }
                 >
                   {produtor}
                 </option>
@@ -577,8 +637,8 @@ export default function Cronograma() {
                       ) => {
                         e.stopPropagation();
 
-                        router.push(
-                          `/cronograma/editar/${item.id}`
+                        abrirEdicao(
+                          item
                         );
                       }}
                     >
@@ -649,77 +709,261 @@ export default function Cronograma() {
 
                   <div className="detalhe">
 
-                    <p>
-                      <strong>
-                        Motivo:
-                      </strong>{" "}
-                      {item.motivo ||
-                        "-"}
-                    </p>
+                    {editando ===
+                    item.id ? (
 
-                    <p>
-                      <strong>
-                        Descrição:
-                      </strong>{" "}
-                      {item.descricao ||
-                        "-"}
-                    </p>
+                      <>
 
-                    <p
-                      className={
-                        item.realizado
-                          ? "status-ok"
-                          : "status-pendente"
-                      }
-                    >
-                      {item.realizado
-                        ? "✓ Atividade realizada"
-                        : "⏳ Atividade pendente"}
-                    </p>
+                        <input
+                          className="obs-box"
+                          style={{
+                            minHeight: 45,
+                          }}
+                          value={
+                            formEdit.titulo
+                          }
+                          placeholder="Título"
+                          onChange={(
+                            e
+                          ) =>
+                            setFormEdit(
+                              {
+                                ...formEdit,
+                                titulo:
+                                  e
+                                    .target
+                                    .value,
+                              }
+                            )
+                          }
+                        />
 
-                    <div
-                      style={{
-                        marginTop: 20,
-                      }}
-                    >
+                        <input
+                          className="obs-box"
+                          style={{
+                            minHeight: 45,
+                            marginTop: 10,
+                          }}
+                          value={
+                            formEdit.motivo
+                          }
+                          placeholder="Motivo"
+                          onChange={(
+                            e
+                          ) =>
+                            setFormEdit(
+                              {
+                                ...formEdit,
+                                motivo:
+                                  e
+                                    .target
+                                    .value,
+                              }
+                            )
+                          }
+                        />
 
-                      <strong>
-                        Observações
-                      </strong>
+                        <textarea
+                          className="obs-box"
+                          value={
+                            formEdit.descricao
+                          }
+                          placeholder="Descrição"
+                          onChange={(
+                            e
+                          ) =>
+                            setFormEdit(
+                              {
+                                ...formEdit,
+                                descricao:
+                                  e
+                                    .target
+                                    .value,
+                              }
+                            )
+                          }
+                        />
 
-                      <textarea
-                        className="obs-box"
-                        defaultValue={
-                          item.observacoes ||
-                          ""
-                        }
-                        placeholder="Adicionar observações..."
-                        onBlur={(
-                          e
-                        ) =>
-                          salvarObservacoes(
-                            item.id,
-                            e.target
-                              .value
-                          )
-                        }
-                      />
-
-                      {salvandoObs ===
-                        item.id && (
                         <div
                           style={{
-                            marginTop: 8,
-                            fontSize: 12,
-                            color:
-                              "#666",
+                            display:
+                              "flex",
+                            gap: 10,
+                            marginTop: 10,
                           }}
                         >
-                          salvando...
-                        </div>
-                      )}
 
-                    </div>
+                          <input
+                            type="date"
+                            className="obs-box"
+                            style={{
+                              minHeight: 45,
+                            }}
+                            value={
+                              formEdit.data_inicio
+                            }
+                            onChange={(
+                              e
+                            ) =>
+                              setFormEdit(
+                                {
+                                  ...formEdit,
+                                  data_inicio:
+                                    e
+                                      .target
+                                      .value,
+                                }
+                              )
+                            }
+                          />
+
+                          <input
+                            type="date"
+                            className="obs-box"
+                            style={{
+                              minHeight: 45,
+                            }}
+                            value={
+                              formEdit.data_fim
+                            }
+                            onChange={(
+                              e
+                            ) =>
+                              setFormEdit(
+                                {
+                                  ...formEdit,
+                                  data_fim:
+                                    e
+                                      .target
+                                      .value,
+                                }
+                              )
+                            }
+                          />
+
+                        </div>
+
+                        <textarea
+                          className="obs-box"
+                          value={
+                            formEdit.observacoes
+                          }
+                          placeholder="Observações"
+                          onChange={(
+                            e
+                          ) =>
+                            setFormEdit(
+                              {
+                                ...formEdit,
+                                observacoes:
+                                  e
+                                    .target
+                                    .value,
+                              }
+                            )
+                          }
+                        />
+
+                        <div
+                          style={{
+                            marginTop: 15,
+                            display:
+                              "flex",
+                            gap: 10,
+                          }}
+                        >
+
+                          <button
+                            className="btn btn-primary"
+                            onClick={() =>
+                              salvarEdicao(
+                                item.id
+                              )
+                            }
+                          >
+                            Salvar
+                          </button>
+
+                          <button
+                            className="btn btn-secondary"
+                            onClick={() =>
+                              setEditando(
+                                null
+                              )
+                            }
+                          >
+                            Cancelar
+                          </button>
+
+                        </div>
+
+                      </>
+
+                    ) : (
+
+                      <>
+
+                        <p>
+                          <strong>
+                            Motivo:
+                          </strong>{" "}
+                          {item.motivo ||
+                            "-"}
+                        </p>
+
+                        <p>
+                          <strong>
+                            Descrição:
+                          </strong>{" "}
+                          {item.descricao ||
+                            "-"}
+                        </p>
+
+                        <p
+                          className={
+                            item.realizado
+                              ? "status-ok"
+                              : "status-pendente"
+                          }
+                        >
+                          {item.realizado
+                            ? "✓ Atividade realizada"
+                            : "⏳ Atividade pendente"}
+                        </p>
+
+                        <div
+                          style={{
+                            marginTop: 20,
+                          }}
+                        >
+
+                          <strong>
+                            Observações
+                          </strong>
+
+                          <div
+                            style={{
+                              marginTop: 10,
+                              background:
+                                "#f8fafc",
+                              border:
+                                "1px solid #e5e7eb",
+                              borderRadius: 12,
+                              padding: 15,
+                              whiteSpace:
+                                "pre-wrap",
+                              minHeight: 80,
+                            }}
+                          >
+                            {item.observacoes ||
+                              "Nenhuma observação adicionada"}
+                          </div>
+
+                        </div>
+
+                      </>
+
+                    )}
 
                   </div>
 
