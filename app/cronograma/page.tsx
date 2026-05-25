@@ -33,7 +33,7 @@ export default function Cronograma() {
       .from("cronograma_semanal")
       .select("*")
       .order("data_fim", {
-        ascending: true, // As datas mais próximas do fim ficam no topo
+        ascending: true,
       });
 
     if (error) {
@@ -75,7 +75,6 @@ export default function Cronograma() {
     const confirmar = confirm("Deseja realmente excluir esta atividade?");
     if (!confirmar) return;
 
-    // Adicionado .select() para garantir que a linha foi realmente excluída no banco
     const { data, error } = await supabase
       .from("cronograma_semanal")
       .delete()
@@ -88,10 +87,9 @@ export default function Cronograma() {
       return;
     }
 
-    // Se o banco não deletou a linha (geralmente problema de RLS no Supabase)
     if (data && data.length === 0) {
       alert("A atividade não pôde ser excluída no banco de dados. Verifique as permissões (RLS) no Supabase.");
-      carregar(); // Recarrega os dados reais para evitar a exclusão fantasma na tela
+      carregar(); 
       return;
     }
 
@@ -146,7 +144,6 @@ export default function Cronograma() {
     alert("Alterações salvas");
   }
 
-  // Função mantida, mas agora sem o alert() para um salvamento silencioso e mais dinâmico
   async function salvarObservacoes(id: any, observacoes: string) {
     const { error } = await supabase
       .from("cronograma_semanal")
@@ -656,3 +653,16 @@ export default function Cronograma() {
                         }}
                         onBlur={() =>
                           salvarObservacoes(item.id, item.observacoes || "")
+                        }
+                      />
+                    </>
+                  )}
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      </div>
+    </>
+  );
+}
