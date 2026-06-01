@@ -196,8 +196,9 @@ export default function Cronograma() {
     ];
   }, [dados]);
 
-  const dadosFiltrados = useMemo(() => {
-    return dados.filter((item) => {
+const dadosFiltrados = useMemo(() => {
+  return dados
+    .filter((item) => {
       let matchMes = true;
 
       if (filtroMes) {
@@ -206,11 +207,24 @@ export default function Cronograma() {
       }
 
       const produtor = item.produtor || item.propriedade;
-      const matchProdutor = !filtroProdutor || produtor === filtroProdutor;
+      const matchProdutor =
+        !filtroProdutor || produtor === filtroProdutor;
 
       return matchMes && matchProdutor;
+    })
+    .sort((a, b) => {
+      // Pendentes primeiro, realizados por último
+      if (a.realizado !== b.realizado) {
+        return a.realizado ? 1 : -1;
+      }
+
+      // Dentro de cada grupo mantém ordenação por data fim
+      return (
+        new Date(a.data_fim).getTime() -
+        new Date(b.data_fim).getTime()
+      );
     });
-  }, [dados, filtroMes, filtroProdutor]);
+}, [dados, filtroMes, filtroProdutor]);
 
   return (
     <>
